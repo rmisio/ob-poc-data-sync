@@ -1,0 +1,33 @@
+.LoginMenu {
+  position: relative;
+}
+
+.LoginMenu-logoutWrap {
+  position: relative;
+}
+
+.LoginMenu-logoutLink {
+  position: absolute;
+  top: -27px;
+  left: 1px;
+}
+
+.LoginMenu-popUpMenu {
+  position: absolute;
+  right: 0px;
+  top: 30px;
+  background-color: white;
+  padding: 10px;
+  color: black;
+  border: 1px solid black;
+}
+
+.LoginMenu-popUpMenu a {
+  padding: 3px;
+}
+
+.LoginMenu-popUpMenu a:hover {
+  background-color: black;
+  color: white;
+  padding: 3px;
+}
