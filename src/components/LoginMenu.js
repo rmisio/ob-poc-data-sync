@@ -40,10 +40,15 @@ class LoginMenu extends Component {
 
   handleLogoutClick = event => {
     this.props.actions.logout();
+    this.setState({ menuOpen: false });
   }
 
   handleAvatarClick = event => {
     this.setState({ menuOpen: !this.state.menuOpen });
+  }
+
+  handleLoginClick = event => {
+    this.props.actions.login(12345);  
   }
 
   render() {
@@ -74,7 +79,7 @@ class LoginMenu extends Component {
     } else {
       return (
         <nav className="LoginMenu">
-          <a>Login</a>
+          <a onClick={this.handleLoginClick}>Login</a>
         </nav>
       )      
     }

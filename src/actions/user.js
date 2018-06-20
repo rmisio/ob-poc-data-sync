@@ -3,3 +3,10 @@ export const logout = () => {
     type: 'logout',
   }
 };
+
+export const login = peerId => {
+  return {
+    type: 'login',
+    peerId,
+  }
+};

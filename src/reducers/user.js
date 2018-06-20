@@ -13,10 +13,18 @@ const logout = (state={}, action) => {
   return {};
 }
 
+const login = (state={}, action) => {
+  return {
+    ...dummyUser,
+  };
+}
+
 const reduceState = (state={}, action) => {
   switch(action.type) {
     case 'logout':
       return logout(state, action);
+    case 'login':
+      return login(state, action);      
     default:
       return state;
   }

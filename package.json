@@ -4,19 +4,26 @@
   "private": true,
   "dependencies": {
     "history": "^4.7.2",
+    "pouchdb-adapter-http": "^6.4.3",
+    "pouchdb-adapter-idb": "^6.4.3",
+    "pouchdb-server": "^4.0.1",
+    "prop-types": "^15.6.2",
     "react": "^16.4.1",
     "react-dom": "^16.4.1",
     "react-redux": "^5.0.7",
     "react-router-dom": "^4.3.1",
     "react-router-redux": "^5.0.0-alpha.8",
     "react-scripts": "1.1.4",
-    "redux": "^4.0.0"
+    "redux": "^4.0.0",
+    "rxdb": "^7.6.1",
+    "rxjs": "^6.2.1"
   },
   "scripts": {
     "start": "cross-env NODE_PATH=src react-scripts start",
     "build": "react-scripts build",
     "test": "cross-env NODE_PATH=src react-scripts test --env=jsdom",
-    "eject": "react-scripts eject"
+    "eject": "react-scripts eject",
+    "db-server": "pouchdb-server -d ./db"
   },
   "devDependencies": {
     "cross-env": "^5.2.0"
