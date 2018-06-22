@@ -4,7 +4,11 @@ export const logout = () => {
   }
 };
 
-export const login = peerId => {
+export const login = seed => {
+  if (typeof seed !== 'string') {
+    throw new Error('A seed must be provided as a string.');
+  }
+
   return {
     type: 'login',
     peerId,

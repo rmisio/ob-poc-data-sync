@@ -1,10 +1,27 @@
+import { move } from 'util/array';
+
 let openModals = [];
 
 const initialState = {
   openModals,
 };
 
+const singletonModals = [
+  'Login',
+];
+
 const openModal = (state={}, action) => {
+  let pushNeeded = true;
+
+  if (singletonModals.includes(action.modalType)) {
+    const curIndex =
+      openModals.find(modal => modal.type === action.type);
+    if (typeof curIndex === 'number') {
+      move(curIndex, openModals.length);
+      pushNeeded = false;
+    }
+  }
+
   const modalState = {
     ...action,
     type: action.modalType,
@@ -19,7 +36,6 @@ const openModal = (state={}, action) => {
 }
 
 const closeModal = (state={}, action) => {
-  console.dir(action);
   openModals = openModals.filter(modal => modal.id !== action.id);
 
   return {

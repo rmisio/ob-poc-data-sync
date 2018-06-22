@@ -5,7 +5,7 @@ export const openModal = (modalType, props = {}) => {
 
   return {
     type: 'openModal',
-    id: Date.now(),
+    id: Date.now().toString(), // todo: use GUID function of some sort
     modalType,
     props,
   }

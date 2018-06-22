@@ -7,11 +7,14 @@ import * as ModalActions from 'actions/modals';
 import { Route } from 'react-router'
 import { Link } from 'react-router-dom';
 import Home from 'components/Home';
+import Profile from 'components/Profile';
 import LoginMenu from 'components/LoginMenu';
 // import Chat from './components/Chat';
 import ModalRoot from 'components/modals/ModalRoot';
 import pickle from 'images/pickle2.png';
 import './App.css';
+import 'style/form.css';
+import 'style/layout.css';
 
 import * as RxDB from 'rxdb';
 import { QueryChangeDetector } from 'rxdb';
@@ -29,11 +32,6 @@ RxDB.plugin(require('pouchdb-adapter-http'));
 class App extends Component {
   constructor(props) {
     super(props);
-    props.actions.modalActions.openModal('SimpleMessage', {
-      title: 'Who put the bop in the bop shoo bop de bop?',
-      body: 'Who put the ram in the ramma damma ding dong?',
-    });
-    console.dir(props);
     this.subs = [];
     this.state = {
       profile: {},
@@ -54,7 +52,7 @@ class App extends Component {
         {
           name: dbName,
           adapter: 'idb',
-          password: '12345678'
+          password: '123456789'
         }
       );
     } catch (err) {
@@ -116,6 +114,38 @@ class App extends Component {
     this.subs.forEach(sub => sub.unsubscribe());
   }
 
+  componentDidUpdate(prevProps) {
+    let prevRoute = '';
+    let curRoute = '';
+
+    try {
+      prevRoute = prevProps.router.location.pathname;
+      curRoute = this.props.router.location.pathname;
+    } catch (e) {
+      // pass
+    }
+
+    try {
+      curRoute = this.props.router.location.pathname;
+    } catch (e) {
+      // pass
+    }    
+
+    if (
+      curRoute === '/profile' &&
+      prevRoute !== curRoute &&
+      !this.props.user.loggedIn &&
+      // ensure the login modal isn't already open and on top
+      !(
+        this.props.modals.openModals.length &&
+        this.props.modals.openModals.find(modal => modal.type === 'Login') ===
+        this.props.modals.openModals[this.props.modals.openModals.length - 1]
+      )
+    ) {
+      this.props.actions.modalActions.openModal('Login');
+    }
+  }
+
   handleLoginClick = () => {
     this.props.actions.modalActions.openModal('Login');
   }
@@ -167,44 +197,46 @@ class App extends Component {
               <div className="App-navWrap">
                 <nav className="App-mainNav">
                   <Link to="/" className={pathname === '/' ? 'active' : ''}>Home</Link>
-                  <Link to="/chat" className={pathname === '/chat' ? 'active' : ''}>Chat</Link>
+                  <Link to="/profile" className={pathname === '/profile' ? 'active' : ''}>Profile</Link>
                 </nav>
                 <LoginMenu />
               </div>
             </header>
-            <div>{JSON.stringify(this.state.profile)}</div>
-            <br />
-            <br />
-            <div>
-              <input
-                type="text"
-                value={this.state.profileForm.name}
-                onChange={this.handleInputChange}
-                placeholder="What be yo name?"
-                name="name">
-              </input>
-            </div>
-            <div>
-              <textarea
-                value={this.state.profileForm.description}
-                onChange={this.handleInputChange}
-                name="description">
-              </textarea>
-            </div>
-            <div>
-              <button onClick={this.handleSaveProfileClick} disabled={this.state.savingProfile}>Save dat shit</button>
-            </div>
-            <br />
-            <br />            
-            <div>
-              <Route exact path="/" component={Home} />
-              {/*<Route path="/chat" component={Chat} />*/}
-            </div>
-            <div className="App-modalContainer">
-              {
-                this.props.modals.openModals
-                  .map(modal => <ModalRoot key={modal.type} type={modal.type} id={modal.id} {...modal.props} />)
-              }
+            <div className="App-mainContent">
+              <div>{JSON.stringify(this.state.profile)}</div>
+              <br />
+              <br />
+              <div>
+                <input
+                  type="text"
+                  value={this.state.profileForm.name}
+                  onChange={this.handleInputChange}
+                  placeholder="What be yo name?"
+                  name="name">
+                </input>
+              </div>
+              <div>
+                <textarea
+                  value={this.state.profileForm.description}
+                  onChange={this.handleInputChange}
+                  name="description">
+                </textarea>
+              </div>
+              <div>
+                <button onClick={this.handleSaveProfileClick} disabled={this.state.savingProfile}>Save dat shit</button>
+              </div>
+              <br />
+              <br />            
+              <div>
+                <Route exact path="/" component={Home} />
+                <Route path="/profile" component={Profile} />
+              </div>
+              <div className="App-modalContainer">
+                {
+                  this.props.modals.openModals
+                    .map(modal => <ModalRoot key={modal.type} type={modal.type} id={modal.id} {...modal.props} />)
+                }
+              </div>
             </div>
           </div>
         </ConnectedRouter>

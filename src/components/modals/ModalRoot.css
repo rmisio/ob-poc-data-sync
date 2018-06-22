@@ -15,6 +15,7 @@
   left: 50%;
   transform: translateX(-50%);
   border: 1px solid #ccc;
+  width: 500px;
 }
 
 .ModalRoot-close {

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as UserActions from 'actions/user';
+import * as ModalActions from 'actions/modals';
 import './LoginMenu.css';
 import Avatar from 'components/Avatar';
 
@@ -39,7 +40,7 @@ class LoginMenu extends Component {
   }
 
   handleLogoutClick = event => {
-    this.props.actions.logout();
+    this.props.actions.user.logout();
     this.setState({ menuOpen: false });
   }
 
@@ -48,7 +49,7 @@ class LoginMenu extends Component {
   }
 
   handleLoginClick = event => {
-    this.props.actions.login(12345);  
+    this.props.actions.modals.openModal('Login');
   }
 
   render() {
@@ -94,7 +95,10 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(UserActions, dispatch),
+    actions: {
+      user: bindActionCreators(UserActions, dispatch),
+      modals: bindActionCreators(ModalActions, dispatch),
+    },
   };
 }
 
