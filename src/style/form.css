@@ -17,3 +17,15 @@ form textarea, form input, form select {
 textarea {
   padding: 10px;
 }
+
+button {
+  border: 1px solid black;
+  padding: 5px 10px;
+  font-size: 16px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: black;
+  color: white;
+}

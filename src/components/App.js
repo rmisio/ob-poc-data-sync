@@ -15,19 +15,7 @@ import pickle from 'images/pickle2.png';
 import './App.css';
 import 'style/form.css';
 import 'style/layout.css';
-
-import * as RxDB from 'rxdb';
-import { QueryChangeDetector } from 'rxdb';
-import profileSchema from 'schema/profile';
-
-const syncURL = 'http://localhost:5984/';
-const dbName = 'obdb';
-
-QueryChangeDetector.enable();
-QueryChangeDetector.enableDebugging();
-
-RxDB.plugin(require('pouchdb-adapter-idb'));
-RxDB.plugin(require('pouchdb-adapter-http'));
+import 'style/text.css';
 
 class App extends Component {
   constructor(props) {
@@ -42,76 +30,8 @@ class App extends Component {
     };
   }
 
-  async createDatabase() {
-    return;
-    let db;
-
-    // password must have at least 8 characters
-    try {
-      db = await RxDB.create(
-        {
-          name: dbName,
-          adapter: 'idb',
-          password: '123456789'
-        }
-      );
-    } catch (err) {
-      console.error('There was an error connecting to the db.');
-      throw err;
-    }
-
-    // show who's the leader in page's title
-    // db.waitForLeadership().then(() => {
-    //   document.title = '♛ ' + document.title;
-    // });
-
-    // get profile
-    const profileCollection = await db.collection({
-      name: 'profiles',
-      schema: profileSchema
-    });
-
-    // set up replication
-    const replicationState = 
-      profileCollection.sync({ remote: syncURL + dbName + '/' });
-    this.subs.push(
-      replicationState.change$.subscribe(change => {
-        console.dir(change)
-      })
-    );
-    this.subs.push(
-      replicationState.docs$.subscribe(docData => console.dir(docData))
-    );
-    this.subs.push(
-      replicationState.active$.subscribe(active => console.log(`Replication active: ${active}`))
-    );
-    this.subs.push(
-      replicationState.complete$.subscribe(completed => console.log(`Replication completed: ${completed}`))
-    );
-    this.subs.push(
-      replicationState.error$.subscribe(error => {
-        console.dir(error)
-      })
-    );
-
-    return db;
-  }
-
-  async componentDidMount() {
-    // this.db = await this.createDatabase();
-
-    // const sub = 
-    //   this.db.profiles
-    //     .findOne('555')
-    //     .$.subscribe(profile => {
-    //       if (!profile) return;
-    //       this.setState({ profile });
-    //     });
-    // this.subs.push(sub);
-  }
-
-  componentWillUnmount() {
-    this.subs.forEach(sub => sub.unsubscribe());
+  componentWillReceiveProps(nextProps) {
+    console.dir(nextProps);
   }
 
   componentDidUpdate(prevProps) {

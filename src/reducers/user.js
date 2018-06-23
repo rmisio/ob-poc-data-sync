@@ -1,42 +1,65 @@
-let initialState = {};
+const initialState = {
+  loggedIn: false,
+  loggingIn: false,
+  peerId: null,
+};
 
 const dummyUser = {
   peerId: 12345,
   avatar: 'http://i.pravatar.cc/150?img=69',
 }
 
-initialState = {
-  ...dummyUser,
-};
-
-const logout = (state={}, action) => {
-  return {};
+function loggedOut(state={}, action) {
+  return initialState;
 }
 
-const login = (state={}, action) => {
+function loggingIn(state={}, action) {
   return {
-    ...dummyUser,
-  };
+    loggedIn: false,
+    loggingIn: true,
+    peerId: action.peerId,
+  }
 }
 
-const reduceState = (state={}, action) => {
+function loginError(state={}, action) {
+  return {
+    loggedIn: false,
+    loggingIn: false,
+    loginErrorPeerId: action.peerId,    
+    loginError: action.error, 
+  }
+}
+
+function loggedIn(state={}, action) {
+  return {
+    loggedIn: true,
+    loggingIn: false,
+    peerId: action.peerId,    
+  }  
+}
+
+function profileSet(state={}, action) {
+  return {
+    loggedIn: true,
+    loggingIn: false,
+    peerId: action.peerId,
+    profile: action.profile,
+  }
+}
+
+export default (state={}, action) => {
   switch(action.type) {
-    case 'logout':
-      return logout(state, action);
-    case 'login':
-      return login(state, action);      
+    case 'loggedOut':
+      return loggedOut(state, action);
+    case 'loggingIn':
+      return loggingIn(state, action);
+    case 'loggedIn':
+      return loggedIn(state, action);      
+    case 'loginError':
+      return loginError(state, action);
+    case 'profileSet':
+      return profileSet(state, action);
     default:
       return state;
   }
 };
-
-export default (state=initialState, action) => {
-  let reduced = reduceState(state, action);
-
-  const foo = {
-    ...reduced,
-    loggedIn: !!reduced.peerId,
-  }
-
-  return foo;
-}

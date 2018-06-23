@@ -6,7 +6,12 @@ import LoginRequired from 'components/LoginRequired';
 
 class Profile extends Component {
   render() {
-    let content = <p style={{textAlign: 'center'}}>Profile coming soon.</p>;
+    let content = (
+      <div style={{textAlign: 'center'}}>
+        <h2>Profile not set</h2>
+        <p>You either entered the wrong seed when you logged in or your local browser does not have your data and the sync with the remote hasn't completed. Unless your internet is out, you probably entered the wrong seed.</p>
+      </div>
+    );
 
     if (!this.props.user.loggedIn) {
       content = <LoginRequired />;

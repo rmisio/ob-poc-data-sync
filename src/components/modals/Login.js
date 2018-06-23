@@ -1,8 +1,11 @@
 import React, { Component } from 'react';
+import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as UserActions from 'actions/user';
+import * as ModalActions from 'actions/modals';
+import { generateSeed } from 'util/crypto';
 import ErrorList from 'components/ErrorList';
-// import './Login.css';
+import './Login.css';
 
 class Login extends Component {
   constructor(props) {
@@ -12,6 +15,13 @@ class Login extends Component {
       loginForm: {
         seed: '',
       },
+      registerSeed: generateSeed(),
+    }
+  }
+
+  componentDidUpdate(prevProps) {
+    if (this.props.user.loggedIn) {
+      this.props.actions.modals.closeModal(this.props.id);
     }
   }
 
@@ -21,11 +31,7 @@ class Login extends Component {
     const name = target.name;
     let newState = {};
 
-    console.log(`the nameSpace is ${nameSpace}`);
-    console.log('poo');
     event.persist();
-    window.poo = event;
-    console.log('poo - END');
 
     if (nameSpace) {
       newState = {
@@ -65,12 +71,25 @@ class Login extends Component {
     e.preventDefault();
   }
 
+  handleRegisterClick = e => {
+    this.setState({ phase: 'register' });
+    e.preventDefault();
+  }
+
+  handleCreateClick = e => {
+    this.props.actions.user.login(this.state.registerSeed);
+    e.preventDefault();
+  }
+
   validateLoginForm(data = this.state.loginForm) {
     const errors = {};
 
     if (typeof data.seed !== 'string' || !data.seed) {
       errors.seed = errors.seed || [];
       errors.seed.push('You must satisfy my need for seed.');
+    } else if (data.seed.length < 10) {
+      errors.seed = errors.seed || [];
+      errors.seed.push('Your seed must be at least 10 characters long.');
     }
 
     return Object.keys(errors).length ? errors : null;
@@ -95,11 +114,25 @@ class Login extends Component {
             name="seed"
             ></textarea>
         </div>
-        <div className="flexRow">
+        <div className="flexRow gutterH">
           <button onClick={this.handleLoginClick}>Login</button>
+          <button onClick={this.handleRegisterClick}>Register</button>
         </div>
       </form>
     );
+
+    if (this.state.phase === 'register') {
+      content = (
+        <div>
+          <div className="Login-seedWrap row">{this.state.registerSeed}</div>
+
+          <div className="flexVCent flexRow gutterH">
+            <button onClick={this.handleCreateClick}>Create</button>
+            <div className="clrTEm">Don't forget your seed or you might be left in great need!</div>
+          </div>          
+        </div>
+      );      
+    }
     
     return (
       <div className="Login">
@@ -112,8 +145,8 @@ class Login extends Component {
 function mapStateToProps(state, prop) {
   return {
     // router: state.router,
-    // modals: state.modals,
-    // user: state.user,
+    modals: state.modals,
+    user: state.user,
   };
 }
 
@@ -121,9 +154,9 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: {
       user: bindActionCreators(UserActions, dispatch),
+      modals: bindActionCreators(ModalActions, dispatch),
     }
   };
 }
-
 
 export default connect(mapStateToProps, mapDispatchToProps)(Login);
