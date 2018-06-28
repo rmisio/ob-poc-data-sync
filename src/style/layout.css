@@ -2,6 +2,10 @@
   margin-bottom: 10px;
 }
 
+.rowSm {
+  margin-bottom: 5px;
+}
+
 .flex {
   display: flex;
 }

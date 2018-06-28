@@ -10,7 +10,7 @@
 .ModalRoot-innerWrap {
   background-color: white;
   padding: 35px 25px 25px;
-  position: absolute;
+  position: fixed;
   top: 50px;
   left: 50%;
   transform: translateX(-50%);

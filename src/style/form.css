@@ -12,10 +12,12 @@ form > .row:last-child, form > .flexRow:last-child {
 
 form textarea, form input, form select {
   min-width: 65%;
+  border: 1px solid #AAA;
+  border-radius: 3px;
 }
 
-textarea {
-  padding: 10px;
+textarea, input {
+  padding: 5px;
 }
 
 button {

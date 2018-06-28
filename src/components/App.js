@@ -51,6 +51,7 @@ class App extends Component {
       // pass
     }    
 
+    // todo: abstract this so it can be applied to all login required routes
     if (
       curRoute === '/profile' &&
       prevRoute !== curRoute &&
@@ -64,41 +65,6 @@ class App extends Component {
     ) {
       this.props.actions.modalActions.openModal('Login');
     }
-  }
-
-  handleLoginClick = () => {
-    this.props.actions.modalActions.openModal('Login');
-  }
-
-  handleInputChange = event => {
-    const target = event.target;
-    const value = target.type === 'checkbox' ? target.checked : target.value;
-    const name = target.name;
-
-    this.setState({
-      profileForm: {
-        ...this.state.profileForm,
-        [name]: value,
-      },
-    });
-  }
-
-  handleSaveProfileClick = () => {
-    this.setState({ savingProfile: true });
-    this.saveProfile()
-      .then()
-      .catch()
-      .then(() => {
-        this.setState({ savingProfile: false });
-      });
-  }  
-
-  async saveProfile() {
-    await this.db.profiles.upsert({
-      peerID: '555',
-      name: this.state.profileForm.name,
-      description: this.state.profileForm.description,
-    })
   }
 
   render() {
@@ -123,30 +89,6 @@ class App extends Component {
               </div>
             </header>
             <div className="App-mainContent">
-              <div>{JSON.stringify(this.state.profile)}</div>
-              <br />
-              <br />
-              <div>
-                <input
-                  type="text"
-                  value={this.state.profileForm.name}
-                  onChange={this.handleInputChange}
-                  placeholder="What be yo name?"
-                  name="name">
-                </input>
-              </div>
-              <div>
-                <textarea
-                  value={this.state.profileForm.description}
-                  onChange={this.handleInputChange}
-                  name="description">
-                </textarea>
-              </div>
-              <div>
-                <button onClick={this.handleSaveProfileClick} disabled={this.state.savingProfile}>Save dat shit</button>
-              </div>
-              <br />
-              <br />            
               <div>
                 <Route exact path="/" component={Home} />
                 <Route path="/profile" component={Profile} />

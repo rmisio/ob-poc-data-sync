@@ -22,6 +22,18 @@ class Login extends Component {
   componentDidUpdate(prevProps) {
     if (this.props.user.loggedIn) {
       this.props.actions.modals.closeModal(this.props.id);
+    } else if (this.props.user.loginError &&
+      prevProps.user.loginError !== this.props.user.loginError) {
+      this.props.actions.modals.openModal('SimpleMessage', {
+        title: 'There was an error logging in',
+        body: this.props.user.loginError.message || '',
+      });
+    } else if (this.props.user.registerError &&
+      prevProps.user.registerError !== this.props.user.registerError) {
+      this.props.actions.modals.openModal('SimpleMessage', {
+        title: 'There was an error registering',
+        body: this.props.user.registerError.message || '',
+      });
     }
   }
 
@@ -77,7 +89,12 @@ class Login extends Component {
   }
 
   handleCreateClick = e => {
-    this.props.actions.user.login(this.state.registerSeed);
+    this.props.actions.user.register(this.state.registerSeed);
+    e.preventDefault();
+  }
+
+  handleRegisterCancelClick = e => {
+    this.setState({ phase: 'login' });
     e.preventDefault();
   }
 
@@ -128,6 +145,7 @@ class Login extends Component {
 
           <div className="flexVCent flexRow gutterH">
             <button onClick={this.handleCreateClick}>Create</button>
+            <button onClick={this.handleRegisterCancelClick}>Cancel</button>
             <div className="clrTEm">Don't forget your seed or you might be left in great need!</div>
           </div>          
         </div>

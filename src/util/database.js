@@ -25,6 +25,7 @@ async function _connect(name, password) {
 
   // TODO: first part for debugging only!
   window.db = db.instance = database;
+  db.name = name;
 
   const profileCollection = await database.collection({
     name: 'profiles',
@@ -57,24 +58,38 @@ async function _connect(name, password) {
   return database;
 }
 
-// todo: this should accept name and password instead of seed
 export function connect(name, password) {
+  const dbName = `ob${name}`;
+  
   if (db.promise) {
-    if (db.name !== name) {
-      db.instance.destroy();
+    console.log(`the db name is ${db.name}, you want ${name}`);
+    if (db.name !== dbName) {
+      console.log('No Matchy match matchers');
+      return db.instance.destroy()
+        .then(
+          () => {
+            db.promise = _connect(dbName, password);
+            return db.promise;
+          }
+        );
     } else {
       return db.promise;
     }
   }
 
-  db.promise = _connect(`ob${name}`, password);
+  db.promise = _connect(dbName, password);
   return db.promise;
 }
 
 export function destroy() {
-  // todo: return the destroy call and return a rejected
-  // promise if there is no instance.
   if (db.instance) {
-    db.instance.destroy();
+    return db.instance.destroy()
+      .then(() => {
+        db.instance = null;
+        db.promise = null;
+        db.name = null;   
+      });
+  } else {
+    return new Promise().resolve();
   }
 }

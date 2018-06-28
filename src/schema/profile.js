@@ -15,8 +15,11 @@ const schema = {
     description: {
       type: 'string',
     },
+    avatarUrl: {
+      type: 'string',
+    },
   },
-  required: ['peerID', 'name', 'description'],
+  required: ['peerID', 'name', 'description', 'avatarUrl'],
 }
 
 export default schema;

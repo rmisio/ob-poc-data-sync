@@ -1,9 +1,12 @@
 export function seedToPeerId(seed) {
-  return seed
-    .replace(/\s/g, '')
-    .split('')
+  const moo = seed
+    .replace(/\s+/g, ',')
+    .split(',')
+    .map(w => w.slice(0, 4))
     .map(c => c.charCodeAt(0))
     .join('');
+  console.log(moo);
+  return moo;
 }
 
 const words = [
@@ -30,6 +33,20 @@ const words = [
   'blocks',
   'cardamom',
   'india',
+  'fickle',
+  'weiner',
+  'puny',
+  'silly',
+  'sally',
+  'wolf',
+  'emerald',
+  'bhoff',
+  'dupa',
+  'j-so-hot',
+  'cathartic',
+  'tyler',
+  'jiggles',
+  'wiggles',
 ];
 
 export function generateSeed() {
