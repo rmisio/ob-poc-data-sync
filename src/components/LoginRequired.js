@@ -11,7 +11,7 @@ class LoginRequired extends Component {
   render() {
     return (
       <div className="LoginRequired" style={{textAlign: 'center'}}>
-        <p>You must be logged in to view this page. Please <a href="#" onClick={this.handleLoginClick}>log in</a>.</p>
+        <p>You must be logged in to view this page. Please <a onClick={this.handleLoginClick}>log in</a>.</p>
       </div>
     );
   }

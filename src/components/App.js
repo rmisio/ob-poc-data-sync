@@ -4,12 +4,12 @@ import { connect } from 'react-redux';
 import { ConnectedRouter } from 'react-router-redux';
 import { history } from 'index';
 import * as ModalActions from 'actions/modals';
+import * as UserActions from 'actions/user';
 import { Route } from 'react-router'
 import { Link } from 'react-router-dom';
 import Home from 'components/Home';
 import Profile from 'components/Profile';
 import LoginMenu from 'components/LoginMenu';
-// import Chat from './components/Chat';
 import ModalRoot from 'components/modals/ModalRoot';
 import pickle from 'images/pickle2.png';
 import './App.css';
@@ -28,11 +28,22 @@ class App extends Component {
         description: '',
       },
     };
+
+    this.loginIfSessionLoginAvailable();
   }
 
-  componentWillReceiveProps(nextProps) {
-    console.dir(nextProps);
+  loginIfSessionLoginAvailable() {
+    const seed = sessionStorage.getItem('login');
+    if (seed && seed !== 'explicit-logout' &&
+      this.props.user && !this.props.user.loggingIn &&
+      !this.props.user.loggedIn) {
+      this.props.actions.user.login(seed)
+    }
   }
+
+  // componentWillReceiveProps(nextProps) {
+  //   console.dir(nextProps);
+  // }
 
   componentDidUpdate(prevProps) {
     let prevRoute = '';
@@ -49,12 +60,17 @@ class App extends Component {
       curRoute = this.props.router.location.pathname;
     } catch (e) {
       // pass
-    }    
+    }
+
+    if (!prevProps.user.sessionLoginSet && this.props.user.sessionLoginSet) {
+      this.loginIfSessionLoginAvailable();
+    }
 
     // todo: abstract this so it can be applied to all login required routes
     if (
       curRoute === '/profile' &&
       prevRoute !== curRoute &&
+      !this.props.user.loggingIn &&
       !this.props.user.loggedIn &&
       // ensure the login modal isn't already open and on top
       !(
@@ -119,6 +135,7 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: {
       modalActions: bindActionCreators(ModalActions, dispatch),
+      user: bindActionCreators(UserActions, dispatch),
     }
   };
 }

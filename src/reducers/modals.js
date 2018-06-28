@@ -11,14 +11,11 @@ const singletonModals = [
 ];
 
 const openModal = (state={}, action) => {
-  let pushNeeded = true;
-
   if (singletonModals.includes(action.modalType)) {
     const curIndex =
       openModals.find(modal => modal.type === action.type);
     if (typeof curIndex === 'number') {
       move(curIndex, openModals.length);
-      pushNeeded = false;
     }
   }
 

@@ -1,15 +1,13 @@
+const sessionLogin = sessionStorage.getItem('login');
+
 const initialState = {
   loggedIn: false,
   loggingIn: false,
   registering: false,
   peerId: null,
   savingProfile: false,
+  sessionLoginSet: sessionLogin && sessionLogin !== 'explicit-logout',
 };
-
-const dummyUser = {
-  peerId: 12345,
-  avatar: 'http://i.pravatar.cc/150?img=69',
-}
 
 function loggedOut(state={}, action) {
   return {
@@ -122,7 +120,14 @@ function saveProfileError(state={}, action) {
   }
 }
 
-export default (state={}, action) => {
+function sessionLoginSet(state={}, action) {
+  return {
+    ...state,
+    sessionLoginSet: true,
+  }
+}
+
+export default (state=initialState, action) => {
   switch(action.type) {
     case 'loggedOut':
       return loggedOut(state, action);
@@ -146,6 +151,8 @@ export default (state={}, action) => {
       return saveProfileSaved(state, action);
     case 'saveProfileError':
       return saveProfileError(state, action);
+    case 'sessionLoginSet':
+      return sessionLoginSet(state, action);
     default:
       return state;
   }

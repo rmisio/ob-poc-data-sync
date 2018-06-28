@@ -31,3 +31,8 @@ button:hover {
   background-color: black;
   color: white;
 }
+
+a {
+  text-decoration: underline;
+  cursor: pointer;
+}

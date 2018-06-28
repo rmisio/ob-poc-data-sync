@@ -8,6 +8,8 @@ function loggedOut() {
 };
 
 export function logout() {
+  sessionStorage.setItem('login', 'explicit-logout');
+
   return function (dispatch) {
     destroy();
     dispatch(loggedOut());
@@ -67,6 +69,7 @@ export function login(seed) {
       .then(
         db => {
           dispatch(loggedIn(peerId));
+          sessionStorage.setItem('login', seed);
           try {
             db.profiles
               .findOne(peerId)
@@ -146,8 +149,6 @@ export function saveProfile(profile = {}) {
                       error: e,
                     });
                     reject(e);
-                    console.log('no soup');
-                    window.soup = e;
                   },
                 );
             },
@@ -157,8 +158,6 @@ export function saveProfile(profile = {}) {
                 peerId: profile.peerID,
                 error: e,
               });
-              console.log('poop');
-              window.poop = e;
             }
           );
       }
@@ -192,16 +191,16 @@ export function register(seed) {
             avatarUrl: `http://i.pravatar.cc/150?img=${Math.floor(Math.random() * 50) + 1}`,
           }).then(
             profile => {
-              console.log('boom bam bizzle');
               dispatch({
                 type: 'registered',
                 peerId,
               });
 
-              profile.$.subscribe(profile => {
-                if (!profile) return;
-                // todo: move this get() call into profileSet.
-                dispatch(profileSet(peerId, profile.get()));
+              sessionStorage.setItem('login', seed);
+
+              profile.$.subscribe(p => {
+                if (!p) return;
+                dispatch(profileSet(peerId, p));
               });
             },
             e => dispatch(registerError(peerId, e))
@@ -209,5 +208,11 @@ export function register(seed) {
         },
         error => dispatch(registerError(peerId, error))
       );
+  }
+}
+
+export function sessionLoginSet() {
+  return {
+    type: 'sessionLoginSet',
   }
 }

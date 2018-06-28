@@ -5,7 +5,6 @@ export function seedToPeerId(seed) {
     .map(w => w.slice(0, 4))
     .map(c => c.charCodeAt(0))
     .join('');
-  console.log(moo);
   return moo;
 }
 
