@@ -14,6 +14,8 @@ const db = {
   instance: null,
 }
 
+const syncUrl = `http://${window.location.hostname}:5984/`;
+
 async function _connect(name, password) {
   const database = await RxDB.create(
     {
@@ -33,27 +35,7 @@ async function _connect(name, password) {
   });
 
   // set up replication
-  // const replicationState = 
-  //   profileCollection.sync({ remote: syncURL + dbName + '/' });
-  // this.subs.push(
-  //   replicationState.change$.subscribe(change => {
-  //     console.dir(change)
-  //   })
-  // );
-  // this.subs.push(
-  //   replicationState.docs$.subscribe(docData => console.dir(docData))
-  // );
-  // this.subs.push(
-  //   replicationState.active$.subscribe(active => console.log(`Replication active: ${active}`))
-  // );
-  // this.subs.push(
-  //   replicationState.complete$.subscribe(completed => console.log(`Replication completed: ${completed}`))
-  // );
-  // this.subs.push(
-  //   replicationState.error$.subscribe(error => {
-  //     console.dir(error)
-  //   })
-  // );  
+  profileCollection.sync({ remote: `${syncUrl}${db.name}/` });
 
   return database;
 }
@@ -62,9 +44,7 @@ export function connect(name, password) {
   const dbName = `ob${name}`;
   
   if (db.promise) {
-    console.log(`the db name is ${db.name}, you want ${name}`);
     if (db.name !== dbName) {
-      console.log('No Matchy match matchers');
       return db.instance.destroy()
         .then(
           () => {
