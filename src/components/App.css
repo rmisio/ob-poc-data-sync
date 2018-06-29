@@ -50,13 +50,16 @@
   margin-right: 5px;
   color: white;
   padding: 5px;
-  text-decoration: none;
 }
 
 .App-mainNav > a.active {
   background-color: #1ef909;
   color: black;
   font-weight: bold;
+}
+
+.App-navWrap a {
+  text-decoration: none;
 }
 
 @keyframes App-logo-spin {
