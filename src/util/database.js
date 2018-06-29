@@ -14,7 +14,7 @@ const db = {
   instance: null,
 }
 
-const syncUrl = `http://${window.location.hostname}:5984/`;
+const syncUrl = `http://localhost:5984/`;
 
 async function _connect(name, password) {
   const database = await RxDB.create(
