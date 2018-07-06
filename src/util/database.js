@@ -41,6 +41,11 @@ async function _connect(name, password) {
 }
 
 export function connect(name, password) {
+  if (name.indexOf(password) > -1) {
+    throw new Error('The database name should not be equal to or contain ' +
+      'the password.');
+  }
+
   const dbName = `ob${name}`;
   
   if (db.promise) {

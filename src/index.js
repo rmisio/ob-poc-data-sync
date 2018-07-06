@@ -2,7 +2,6 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import createHistory from 'history/createBrowserHistory'
 // import registerServiceWorker from './registerServiceWorker';
-import { remove } from 'util/array';
 import transferSessionStorage from 'util/transferSessionStorage';
 import { Provider } from 'react-redux';
 import Store from 'store';

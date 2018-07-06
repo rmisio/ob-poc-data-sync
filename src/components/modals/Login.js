@@ -1,9 +1,9 @@
 import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
+import Bip39 from 'bip39';
 import * as UserActions from 'actions/user';
 import * as ModalActions from 'actions/modals';
-import { generateSeed } from 'util/crypto';
 import ErrorList from 'components/ErrorList';
 import './Login.css';
 
@@ -15,7 +15,7 @@ class Login extends Component {
       loginForm: {
         seed: '',
       },
-      registerSeed: generateSeed(),
+      registerSeed: Bip39.generateMnemonic(),
     }
   }
 
@@ -26,13 +26,13 @@ class Login extends Component {
       prevProps.user.loginError !== this.props.user.loginError) {
       this.props.actions.modals.openModal('SimpleMessage', {
         title: 'There was an error logging in',
-        body: this.props.user.loginError.message || '',
+        body: this.props.user.loginError || '',
       });
     } else if (this.props.user.registerError &&
       prevProps.user.registerError !== this.props.user.registerError) {
       this.props.actions.modals.openModal('SimpleMessage', {
         title: 'There was an error registering',
-        body: this.props.user.registerError.message || '',
+        body: this.props.user.registerError || '',
       });
     }
   }
@@ -101,12 +101,14 @@ class Login extends Component {
   validateLoginForm(data = this.state.loginForm) {
     const errors = {};
 
+    //todo: ensure no numbers, no international characters.
+    // only lowercase letters and spaces
     if (typeof data.seed !== 'string' || !data.seed) {
       errors.seed = errors.seed || [];
       errors.seed.push('You must satisfy my need for seed.');
-    } else if (data.seed.length < 10) {
+    } else if (data.seed.split(' ').length !== 12) {
       errors.seed = errors.seed || [];
-      errors.seed.push('Your seed must be at least 10 characters long.');
+      errors.seed.push('Your seed should consist of 12 words seperated by spaces.');
     }
 
     return Object.keys(errors).length ? errors : null;

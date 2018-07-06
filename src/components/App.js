@@ -100,7 +100,7 @@ class App extends Component {
                 <nav className="App-mainNav">
                   <Link to="/" className={pathname === '/' ? 'active' : ''}>Home</Link>
                   <Link to="/profile" className={pathname === '/profile' ? 'active' : ''}>Profile</Link>
-                  <a target="_blank" href="https://github.com/rmisio/ob-poc-data-sync">Github</a>
+                  <a target="_blank" rel="noopener noreferrer" href="https://github.com/rmisio/ob-poc-data-sync">Github</a>
                 </nav>
                 <LoginMenu />
               </div>

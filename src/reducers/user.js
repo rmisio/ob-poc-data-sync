@@ -7,6 +7,7 @@ const initialState = {
   peerId: null,
   savingProfile: false,
   sessionLoginSet: sessionLogin && sessionLogin !== 'explicit-logout',
+  profile: undefined,
 };
 
 function loggedOut(state={}, action) {
@@ -21,8 +22,7 @@ function loggingIn(state={}, action) {
     ...state,
     loggedIn: false,
     loggingIn: true,
-    registering: false,    
-    peerId: action.peerId,
+    registering: false,
   }
 }
 
@@ -55,7 +55,6 @@ function registering(state={}, action) {
     loggedIn: false,
     loggingIn: false,
     registering: true,
-    peerId: action.peerId,
   }
 }
 
@@ -77,7 +76,6 @@ function registerError(state={}, action) {
     loggedIn: false,
     loggingIn: false,
     registering: false,
-    peerId: action.peerId,
     registerError: action.error.message || '',
   }
 }

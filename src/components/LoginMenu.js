@@ -70,7 +70,7 @@ class LoginMenu extends Component {
           <div className="LoginMenu-logoutWrap">
             <a onClick={this.handleAvatarClick} className="LoginMenu-logoutLink">
               <div ref={this.avatarWrapRef} className="LoginMenu-avatarWrap">
-                <Avatar url={this.props.user.profile && this.props.user.profile.avatarUrl || ''} />
+                <Avatar url={(this.props.user.profile && this.props.user.profile.avatarUrl) || ''} />
               </div>
             </a>
           </div>
