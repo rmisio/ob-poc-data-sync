@@ -1,4 +1,8 @@
 import { move } from 'util/array';
+import {
+  OPEN_MODAL,
+  CLOSE_MODAL,
+} from 'actions/modals';
 
 let openModals = [];
 
@@ -6,7 +10,13 @@ const initialState = {
   openModals,
 };
 
-const singletonModals = [
+/*
+ * Singleton modals will only allow one model per type to be opened. If you
+ * attempt to open a singleton modal when one is already open, the existing one
+ * will be brought to the top.
+ *
+ */
+export const singletonModals = [
   'Login',
 ];
 
@@ -19,11 +29,8 @@ const openModal = (state={}, action) => {
     }
   }
 
-  const modalState = {
-    ...action,
-    type: action.modalType,
-  };
-  delete modalState.modalType;
+  const modalState = { ...action };
+  delete modalState.type;
   openModals.push(modalState);
 
   return {
@@ -32,8 +39,13 @@ const openModal = (state={}, action) => {
   }
 }
 
+// todo: test closing via different scenarios
 const closeModal = (state={}, action) => {
-  openModals = openModals.filter(modal => modal.id !== action.id);
+  openModals = openModals.filter(modal => {
+    return action.id ?
+      modal.modalId !== action.modalId :
+      modal.modalType !== action.modalType;
+  });
 
   return {
     ...state,
@@ -43,9 +55,9 @@ const closeModal = (state={}, action) => {
 
 export default (state=initialState, action) => {
   switch(action.type) {
-    case 'openModal':
+    case OPEN_MODAL:
       return openModal(state, action);
-    case 'closeModal':
+    case CLOSE_MODAL:
       return closeModal(state, action);      
     default:
       return state;

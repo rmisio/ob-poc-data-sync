@@ -49,7 +49,7 @@ class LoginMenu extends Component {
   }
 
   handleLoginClick = event => {
-    this.props.actions.modals.openModal('Login');
+    this.props.actions.modals.openModal({ modalType: 'Login' });
   }
 
   render() {

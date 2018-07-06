@@ -30,7 +30,8 @@ class Profile extends Component {
 
     if (this.props.user.saveProfileError &&
       !prevProps.user.saveProfileError) {
-      this.props.actions.modals.openModal('SimpleMessage', {
+      this.props.actions.modals.openModal({
+        modalType: 'SimpleMessage',
         title: 'There was an saving your profile',
         body: this.props.user.saveProfileError,
       });

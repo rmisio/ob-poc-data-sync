@@ -75,11 +75,11 @@ class App extends Component {
       // ensure the login modal isn't already open and on top
       !(
         this.props.modals.openModals.length &&
-        this.props.modals.openModals.find(modal => modal.type === 'Login') ===
+        this.props.modals.openModals.find(modal => modal.modalType === 'Login') ===
         this.props.modals.openModals[this.props.modals.openModals.length - 1]
       )
     ) {
-      this.props.actions.modalActions.openModal('Login');
+      this.props.actions.modalActions.openModal({ modalType: 'Login' });
     }
   }
 
@@ -113,7 +113,11 @@ class App extends Component {
               <div className="App-modalContainer">
                 {
                   this.props.modals.openModals
-                    .map(modal => <ModalRoot key={modal.type} type={modal.type} id={modal.id} {...modal.props} />)
+                    .map(modal => {
+                      let key = modal.modalType;
+                      key = modal.modalId ? `${key}-${modal.modalId}` : key;
+                      return <ModalRoot key={key} {...modal} />
+                    })
                 }
               </div>
             </div>

@@ -5,7 +5,7 @@ import * as ModalActions from 'actions/modals';
 
 class LoginRequired extends Component {
   handleLoginClick = () => {
-    this.props.actions.modalActions.openModal('Login');
+    this.props.actions.modalActions.openModal({ modalType: 'Login' });
   }
 
   render() {

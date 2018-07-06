@@ -24,13 +24,15 @@ class Login extends Component {
       this.props.actions.modals.closeModal(this.props.id);
     } else if (this.props.user.loginError &&
       prevProps.user.loginError !== this.props.user.loginError) {
-      this.props.actions.modals.openModal('SimpleMessage', {
+      this.props.actions.modals.openModal({
+        modalType: 'SimpleMessage',
         title: 'There was an error logging in',
         body: this.props.user.loginError || '',
       });
     } else if (this.props.user.registerError &&
       prevProps.user.registerError !== this.props.user.registerError) {
-      this.props.actions.modals.openModal('SimpleMessage', {
+      this.props.actions.modals.openModal({
+        modalType: 'SimpleMessage',
         title: 'There was an error registering',
         body: this.props.user.registerError || '',
       });

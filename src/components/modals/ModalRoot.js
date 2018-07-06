@@ -2,7 +2,10 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as ModalActions from 'actions/modals';
+import { singletonModals } from 'reducers/modals';
 import './ModalRoot.css';
+
+// todo: export modal constants from their respective component.
 
 class ModalRoot extends Component {
   constructor(props) {
@@ -12,21 +15,27 @@ class ModalRoot extends Component {
   }
 
   processProps(props = {}) {
-    if (typeof props.type !== 'string') return;
-
-    import(`./${props.type}`)
-      .then(ModalModule => {
-        if (this.state.ModalComponent) return;
-        this.setState({ ModalComponent: ModalModule.default });
-      })
-      .catch(error => {
-        console.error(error);
-        /* Error handling */
-      });
+    // todo: if a certain modal type is imported above, use that instead of
+    // deferred loading.
+    // todo: launch loading modal during deffered loading or make a fancy pants in
+    // modal loading animation?
+    // todo: show error state if deferred loading error, with retry (?)
+    import(`./${props.modalType}`)
+      .then(
+        ModalModule => {
+          if (this.state.ModalComponent) return;
+          this.setState({ ModalComponent: ModalModule.default });
+        },
+        error => {
+          console.error(error);
+        },
+      );
   }
 
   handleClick = event => {
-    this.props.actions.closeModal(this.props.id);
+    const idOrType = singletonModals.includes(this.props.modalType) ?
+      this.props.modalType : this.props.modalId;
+    this.props.actions.closeModal(idOrType);
   }
 
   render() {
