@@ -2,14 +2,14 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import createHistory from 'history/createBrowserHistory'
 // import registerServiceWorker from './registerServiceWorker';
-import transferSessionStorage from 'util/transferSessionStorage';
 import { Provider } from 'react-redux';
 import Store from 'store';
-import 'index.css';
+import { requestSessionStorage } from 'actions/sessionStorage';
 import App from 'components/App';
+import 'index.css';
 
 export const history = createHistory();
-export const store = Store();
+const store = Store();
 
 ReactDOM.render(
   <Provider store={store}>
@@ -19,4 +19,4 @@ ReactDOM.render(
 );
 
 // registerServiceWorker();
-transferSessionStorage();
+store.dispatch(requestSessionStorage());

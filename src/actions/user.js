@@ -211,9 +211,3 @@ export function register(seed) {
     }
   }
 };
-
-export function sessionLoginSet() {
-  return {
-    type: 'sessionLoginSet',
-  }
-}
