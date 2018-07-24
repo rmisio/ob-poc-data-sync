@@ -8,6 +8,7 @@
   background: #222;
   padding: 20px;
   color: white;
+  font-size: 16px;
 }
 
 .App-logoWrap {
@@ -24,11 +25,11 @@
   font-size: 1.5em;
 }
 
-.App h1 {
+.App-header h1 {
   margin-bottom: 0;
 }
 
-.App h1 + sub {
+.App-header h1 + sub {
   margin-bottom: 25px;
   display: block;
 }

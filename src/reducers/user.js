@@ -1,6 +1,15 @@
+import {
+  LOGGED_OUT, LOGGED_IN, LOGGING_IN,
+  LOGIN_ERROR, PROFILE_SET, SAVING_PROFILE,
+  SAVE_PROFILE_SAVED, SAVE_PROFILE_ERROR,
+  REGISTERING, REGISTER_ERROR,
+  LOGIN_TYPE_SEED, LOGIN_TYPE_PASSWORD,
+} from 'actions/user';
+import { SESSION_STORAGE_SET } from 'actions/sessionStorage';
+
 const sessionLogin = sessionStorage.getItem('login');
 
-const initialState = {
+export const initialState = {
   loggedIn: false,
   loggingIn: false,
   registering: false,
@@ -38,6 +47,16 @@ function loginError(state={}, action) {
 }
 
 function loggedIn(state={}, action) {
+  let encryptedLogins;
+
+  if (action.encryptedSeed) {
+    encryptedLogins = state.encryptedLogins || {};
+    encryptedLogins[action.peerId] = {
+      name: action.profile.name,
+      seed: action.encryptedSeed,
+    };
+  }
+
   return {
     ...state,
     loggedIn: true,
@@ -46,6 +65,10 @@ function loggedIn(state={}, action) {
     peerId: action.peerId,
     registerError: null,
     loginError: null,
+    encryptedLogins,
+    lastLoginPeerId: action.peerId,
+    lastLoginType: action.encryptedSeed === null ?
+      LOGIN_TYPE_PASSWORD : LOGIN_TYPE_SEED,
   }  
 }
 
@@ -55,18 +78,6 @@ function registering(state={}, action) {
     loggedIn: false,
     loggingIn: false,
     registering: true,
-  }
-}
-
-function registered(state={}, action) {
-  return {
-    ...state,
-    loggedIn: true,
-    loggingIn: false,
-    registering: false,
-    peerId: action.peerId,
-    registerError: null,
-    loginError: null,
   }
 }
 
@@ -127,29 +138,27 @@ function sessionLoginSet(state={}, action) {
 
 export default (state=initialState, action) => {
   switch(action.type) {
-    case 'loggedOut':
+    case LOGGED_OUT:
       return loggedOut(state, action);
-    case 'loggingIn':
+    case LOGGING_IN:
       return loggingIn(state, action);
-    case 'loggedIn':
+    case LOGGED_IN:
       return loggedIn(state, action);      
-    case 'loginError':
+    case LOGIN_ERROR:
       return loginError(state, action);
-    case 'registering':
+    case REGISTERING:
       return registering(state, action);
-    case 'registered':
-      return registered(state, action);
-    case 'registerError':
+    case REGISTER_ERROR:
       return registerError(state, action);
-    case 'profileSet':
+    case PROFILE_SET:
       return profileSet(state, action);
-    case 'savingProfile':
+    case SAVING_PROFILE:
       return savingProfile(state, action);
-    case 'saveProfileSaved':
+    case SAVE_PROFILE_SAVED:
       return saveProfileSaved(state, action);
-    case 'saveProfileError':
+    case SAVE_PROFILE_ERROR:
       return saveProfileError(state, action);
-    case 'sessionLoginSet':
+    case SESSION_STORAGE_SET:
       return sessionLoginSet(state, action);
     default:
       return state;

@@ -7,6 +7,7 @@ import Store from 'store';
 import { requestSessionStorage } from 'actions/sessionStorage';
 import App from 'components/App';
 import 'index.css';
+import 'style/containers.css';
 
 export const history = createHistory();
 const store = Store();

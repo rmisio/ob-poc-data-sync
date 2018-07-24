@@ -1,0 +1,16 @@
+body {
+  font-size: 14px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 10px;
+}
+
+.posR {
+  position: relative;
+}

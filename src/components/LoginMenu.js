@@ -3,8 +3,9 @@ import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as UserActions from 'actions/user';
 import * as ModalActions from 'actions/modals';
-import './LoginMenu.css';
 import Avatar from 'components/Avatar';
+import OutsideClick from 'components/common/OutsideClick';
+import './LoginMenu.css';
 
 class LoginMenu extends Component {
   constructor(props) {
@@ -12,22 +13,11 @@ class LoginMenu extends Component {
     this.state = {
       menuOpen: false,
     };
-    this.wrapperRef = React.createRef();
     this.avatarWrapRef = React.createRef();
-  }
-
-  componentDidMount() {
-    document.addEventListener('mousedown', this.handleDocClick);
-  }
-
-  componentWillUnmount() {
-    document.removeEventListener('mousedown', this.handleDocClick);
   }
 
   handleDocClick = event => {
     if (
-      this.wrapperRef && this.wrapperRef.current &&
-      !this.wrapperRef.current.contains(event.target) &&
       !(
         this.avatarWrapRef &&
         this.avatarWrapRef.current &&
@@ -49,23 +39,25 @@ class LoginMenu extends Component {
   }
 
   handleLoginClick = event => {
-    this.props.actions.modals.openModal({ modalType: 'Login' });
+    this.props.actions.modals.openModal({ modalType: 'login/Login' });
   }
 
   render() {
+    let content;
+
     if (this.props.user.loggedIn) {
       let popUpMenu = null;
 
       if (this.state.menuOpen) {
         popUpMenu = (
-          <nav ref={this.wrapperRef} className="LoginMenu-popUpMenu">
+          <nav className="LoginMenu-popUpMenu">
             <a onClick={this.handleLogoutClick}>Logout</a>
           </nav>          
         );
       }
 
-      return (
-        <nav ref={this.wrapperRef} className="LoginMenu">
+      content = (
+        <nav className="LoginMenu">
           <a style={{color: 'transparent'}}>Login</a>
           <div className="LoginMenu-logoutWrap">
             <a onClick={this.handleAvatarClick} className="LoginMenu-logoutLink">
@@ -78,12 +70,14 @@ class LoginMenu extends Component {
         </nav>
       )
     } else {
-      return (
+      content = (
         <nav className="LoginMenu">
           <a onClick={this.handleLoginClick}>Login</a>
         </nav>
       )      
     }
+
+    return <OutsideClick onOutsideClick={this.handleDocClick}>{content}</OutsideClick>;
   }
 }
 

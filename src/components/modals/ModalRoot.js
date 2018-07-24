@@ -33,9 +33,7 @@ class ModalRoot extends Component {
   }
 
   handleClick = event => {
-    const idOrType = singletonModals.includes(this.props.modalType) ?
-      this.props.modalType : this.props.modalId;
-    this.props.actions.closeModal(idOrType);
+    this.props.actions.closeModal(this.props.modalType, this.props.modalId);
   }
 
   render() {
@@ -45,12 +43,12 @@ class ModalRoot extends Component {
     delete modalProps.type;
 
     return (
-      <div className="ModalRoot">
+      <section className="ModalRoot">
         <div className="ModalRoot-innerWrap">
           <a className="ModalRoot-close" onClick={this.handleClick}>X</a>
           <this.state.ModalComponent {...modalProps} />
         </div>
-      </div>
+      </section>
     );
   }
 }

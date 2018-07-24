@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import './ErrorList.css';
 
 const ErrorList = props => {
-  console.dir(props);
   let content =
     props.errors.map(error => <li key="error.replace(/\s/g,'')">{error}</li>);
 

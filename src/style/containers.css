@@ -1,0 +1,17 @@
+.contentBox {
+  padding: 15px;
+  border: 1px solid black;
+}
+
+.confirmBox {
+  position: absolute;
+  width: 175px;
+  background-color: white;
+}
+
+/*
+ * Will display the box above it's container.
+ */
+.confirmBoxTop {
+  transform: translateY(calc(-100% - 10px));
+}

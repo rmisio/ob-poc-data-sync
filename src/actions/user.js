@@ -1,17 +1,37 @@
 import { connect, destroy } from 'util/database';
-import { hashText } from 'util/crypto'; // todo: Bye 2 the Bye'rs
 import {
+  hashText,
   identityKeyFromSeed,
   identityFromKey,
+  decrypt,
+  encrypt,
 } from 'util/crypto';
+import { base64ToHex } from 'util/textEncode';
 
-function loggedOut() {
+export const LOGGED_OUT = 'LOGGED_OUT';
+export const LOGGED_IN = 'LOGGED_IN';
+export const LOGGING_IN = 'LOGGING_IN';
+export const LOGIN_ERROR = 'LOGIN_ERROR';
+export const PROFILE_SET = 'PROFILE_SET';
+export const SAVING_PROFILE = 'SAVING_PROFILE';
+export const SAVE_PROFILE_SAVED = 'SAVE_PROFILE_SAVED';
+export const SAVE_PROFILE_ERROR = 'SAVE_PROFILE_ERROR';
+export const REGISTERING = 'REGISTERING';
+export const REGISTER_ERROR = 'REGISTER_ERROR';
+export const LS_LOGIN_SET = 'LS_LOGIN_SET';
+
+export const LOGIN_TYPE_SEED = 'LOGIN_TYPE_SEED';
+export const LOGIN_TYPE_PASSWORD = 'LOGIN_TYPE_PASSWORD';
+
+const SEED_NONCE_SEPARATOR = '||==||';
+
+const loggedOut = () => {
   return {
-    type: 'loggedOut',
+    type: LOGGED_OUT,
   }
 };
 
-export function logout() {
+export const logout = () => {
   sessionStorage.setItem('login', 'explicit-logout');
 
   return function (dispatch) {
@@ -20,21 +40,20 @@ export function logout() {
   };
 };
 
-function profileSet(peerId, profile = {}) {
-  return {
-    type: 'profileSet',
-    peerId,
-    profile,
-  };
-}
+const profileSet = (peerId, profile = {}) => ({
+  type: PROFILE_SET,
+  peerId,
+  profile,
+});
 
-async function _login(dispatch, seed) {
-  const dbName = await hashText(seed, { encoding: 'hex' });
+const _login = async seed => {
+  const dbNameBase64 = await hashText(seed, { encoding: 'hex' });
+  const dbName = base64ToHex(dbNameBase64);
   const edd2519PrivateKey = await identityKeyFromSeed(seed);
   const { peerId } = await identityFromKey(edd2519PrivateKey.bytes);
   const pw = await hashText(seed, {
     encoding: 'hex',
-    hmacSeed: 'silly little OpenBazaar seed',
+    hmacSeed: 'ob-db-password-seed',
   });
   const db = await connect(dbName, pw);
 
@@ -44,24 +63,24 @@ async function _login(dispatch, seed) {
     pw,
     peerId,
   };
-}
+};
 
-export function login(seed) {
+export const login = (seed) => {
   if (typeof seed !== 'string') {
     throw new Error('A seed must be provided as a string.');
   }
 
   return async function (dispatch) {
     dispatch({
-      type: 'loggingIn',
+      type: LOGGING_IN,
     });
 
     let login;
     try {
-      login = await _login(dispatch, seed);
+      login = await _login(seed);
       sessionStorage.setItem('login', login.pw);
       dispatch({
-        type: 'loggedIn',
+        type: LOGGED_IN,
         peerId: login.peerId,
       });
 
@@ -70,18 +89,61 @@ export function login(seed) {
         .findOne(login.peerId)
         .$.subscribe(profile => {
           if (!profile) return;
-          dispatch(profileSet(login.peerId, profile.get()));
+          dispatch(profileSet(login.peerId, profile.toJSON()));
         });
     } catch (e) {
       console.error(e);
       dispatch({
-        type: 'loginError',
+        type: LOGIN_ERROR,
         peerId: (login && login.peerId) || undefined,
         error: e,
       });
     }
   }
 };
+
+export const loginViaPassword = (encryptedSeed, passphrase) => {
+  if (typeof encryptedSeed !== 'string' || !encryptedSeed) {
+    throw new Error('Please provide an encrypted seed.');
+  }
+
+  if (typeof passphrase !== 'string' || !passphrase) {
+    throw new Error('Please provide a password.');
+  }
+
+  return async function (dispatch) {
+    dispatch({
+      type: LOGGING_IN,
+    });
+
+    const splitEncryptedSeed =
+      encryptedSeed.split(SEED_NONCE_SEPARATOR);
+
+    if (splitEncryptedSeed.length !== 2) {
+      dispatch({
+        type: LOGIN_ERROR,
+        error:
+          new Error('The encrypted seed is not in the correct format.'),
+      });
+      return;
+    }
+
+    const seed = splitEncryptedSeed[0];
+    const nonce = splitEncryptedSeed[1];
+    const decryptedSeed = await decrypt(seed, nonce, passphrase);
+
+    if (decryptedSeed === null) {
+      dispatch({
+        type: LOGIN_ERROR,
+        error:
+          new Error('Unable to decrypt the seed. Invalid password.'),
+      });
+      return;
+    }
+
+    login(decryptedSeed)(dispatch);
+  }
+}
 
 const firstNames = [
   'Sam',
@@ -113,7 +175,7 @@ const lastNames = [
   'Sanchez',
 ];
 
-export function saveProfile(profile = {}) {
+export const saveProfile = (profile = {}) => {
   if (typeof profile.peerID !== 'string' || !profile.peerID) {
     throw new Error('The profile must have a peerID as a string.');
   }
@@ -124,7 +186,7 @@ export function saveProfile(profile = {}) {
     return new Promise(
       (resolve, reject) => {
         dispatch({
-          type: 'savingProfile',
+          type: SAVING_PROFILE,
           peerId: profile.peerID,
         });
 
@@ -136,14 +198,14 @@ export function saveProfile(profile = {}) {
                   () => {
                     resolve(profileDoc);
                     dispatch({
-                      type: 'saveProfileSaved',
+                      type: SAVE_PROFILE_SAVED,
                       peerId: profile.peerID,
                     });                    
                   },
                   e => {
                     console.error(e);
                     dispatch({
-                      type: 'saveProfileError',
+                      type: SAVE_PROFILE_ERROR,
                       peerId: profile.peerID,
                       error: e,
                     });
@@ -154,7 +216,7 @@ export function saveProfile(profile = {}) {
             e => {
               console.error(e);
               dispatch({
-                type: 'saveProfileError',
+                type: SAVE_PROFILE_ERROR,
                 peerId: profile.peerID,
                 error: e,
               });
@@ -165,21 +227,67 @@ export function saveProfile(profile = {}) {
   };
 }
 
-export function register(seed) {
+export const validatePassphrase = passphrase => {
+  const errors = [];
+
+  if (!passphrase || passphrase.replace(/\s/g, '').length < 8) {
+    errors.push('The passphrase must be at least 8 characters long, not counting spaces.');
+  }
+
+  console.dir(errors.length ? errors : null);
+  return errors.length ? errors : null;
+}
+
+/*
+ * Returns the current lsLogin setting from the user state tree. You are required
+ * to provide the state, so you will almost certainly be calling this method from
+ * within a thunk.
+ */
+const getLsLogin = async state => {
+  if (typeof state === 'null' || typeof state !== 'object') {
+    throw new Error('Please provide the state as an object.');
+  }
+
+  const { user: { lsLogin } } = state;
+  return  lsLogin;
+}
+
+export const register = (seed, passphrase) => {
   if (typeof seed !== 'string') {
     throw new Error('A seed must be provided as a string.');
   }
 
-  return async function (dispatch) {
-    dispatch({
-      type: 'registering',
-    });
+  if (passphrase && typeof passphrase !== 'string') {
+    throw new Error('If providing a passphrase, it must be a string.')
+  }
 
-    
+  return async function (dispatch, getState) {
+    dispatch({
+      type: REGISTERING,
+      loginType: passphrase ? LOGIN_TYPE_PASSWORD : LOGIN_TYPE_SEED,
+    });  
+
+    if (passphrase) {
+      const passphraseErrs = validatePassphrase(passphrase);
+
+      if (passphraseErrs) {
+        return {
+          type: REGISTER_ERROR,
+          error: new Error(passphraseErrs.join(', ')),
+        };
+      }
+    }
+
     let login;
 
     try {
-      login = await _login(dispatch, seed);
+      let encrypted = null;
+
+      if (passphrase) {
+        encrypted = await encrypt(seed, passphrase);
+      }
+
+      login = await _login(seed);
       const firstName = firstNames[Math.floor(Math.random() * (firstNames.length - 1))];
       const lastName = lastNames[Math.floor(Math.random() * (lastNames.length - 1))];      
       const profile = await login.db.profiles.upsert({
@@ -190,8 +298,11 @@ export function register(seed) {
       });
 
       dispatch({
-        type: 'registered',
+        type: LOGGED_IN,
         peerId: login.peerId,
+        profile: profile.toJSON(),
+        seed,
+        encryptedSeed: encrypted,
       });
 
       sessionStorage.setItem('login', login.pw);
@@ -204,7 +315,7 @@ export function register(seed) {
     } catch (e) {
       console.error(e);
       dispatch({
-        type: 'registerError',
+        type: REGISTER_ERROR,
         peerId: (login && login.peerId) || undefined,
         error: e,
       });

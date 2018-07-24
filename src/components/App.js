@@ -13,6 +13,7 @@ import LoginMenu from 'components/LoginMenu';
 import ModalRoot from 'components/modals/ModalRoot';
 import pickle from 'images/pickle2.png';
 import './App.css';
+import 'style/base.css';
 import 'style/form.css';
 import 'style/layout.css';
 import 'style/text.css';
@@ -41,9 +42,9 @@ class App extends Component {
     }
   }
 
-  // componentWillReceiveProps(nextProps) {
-  //   console.dir(nextProps);
-  // }
+  componentWillReceiveProps(nextProps) {
+    console.dir(nextProps);
+  }
 
   componentDidUpdate(prevProps) {
     let prevRoute = '';
@@ -79,7 +80,7 @@ class App extends Component {
         this.props.modals.openModals[this.props.modals.openModals.length - 1]
       )
     ) {
-      this.props.actions.modalActions.openModal({ modalType: 'Login' });
+      this.props.actions.modalActions.openModal({ modalType: 'login/Login' });
     }
   }
 
