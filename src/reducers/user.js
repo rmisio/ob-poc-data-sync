@@ -47,7 +47,7 @@ function loginError(state={}, action) {
 }
 
 function loggedIn(state={}, action) {
-  let encryptedLogins;
+  let encryptedLogins = state.encryptedLogins;
 
   if (action.encryptedSeed) {
     encryptedLogins = state.encryptedLogins || {};

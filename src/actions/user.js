@@ -1,4 +1,8 @@
-import { connect, destroy } from 'util/database';
+import {
+  connect,
+  destroy,
+  getCurDb,
+} from 'util/database';
 import {
   hashText,
   identityKeyFromSeed,
@@ -22,8 +26,6 @@ export const LS_LOGIN_SET = 'LS_LOGIN_SET';
 
 export const LOGIN_TYPE_SEED = 'LOGIN_TYPE_SEED';
 export const LOGIN_TYPE_PASSWORD = 'LOGIN_TYPE_PASSWORD';
-
-const SEED_NONCE_SEPARATOR = '||==||';
 
 const loggedOut = () => {
   return {
@@ -92,7 +94,6 @@ export const login = (seed) => {
           dispatch(profileSet(login.peerId, profile.toJSON()));
         });
     } catch (e) {
-      console.error(e);
       dispatch({
         type: LOGIN_ERROR,
         peerId: (login && login.peerId) || undefined,
@@ -117,7 +118,7 @@ export const loginViaPassword = (encryptedSeed, passphrase) => {
     });
 
     const splitEncryptedSeed =
-      encryptedSeed.split(SEED_NONCE_SEPARATOR);
+      encryptedSeed.split('|');
 
     if (splitEncryptedSeed.length !== 2) {
       dispatch({
@@ -180,50 +181,41 @@ export const saveProfile = (profile = {}) => {
     throw new Error('The profile must have a peerID as a string.');
   }
 
-  // TODO: async/await this
   // TODO: put protection on the database that only allows a single profile
-  return function (dispatch) {
-    return new Promise(
-      (resolve, reject) => {
-        dispatch({
-          type: SAVING_PROFILE,
-          peerId: profile.peerID,
-        });
+  return async function (dispatch) {
+    const db = getCurDb();
 
-        return connect(profile.peerID)
-          .then(
-            db => {
-              const profileDoc = db.profiles.upsert(profile)
-                .then(
-                  () => {
-                    resolve(profileDoc);
-                    dispatch({
-                      type: SAVE_PROFILE_SAVED,
-                      peerId: profile.peerID,
-                    });                    
-                  },
-                  e => {
-                    console.error(e);
-                    dispatch({
-                      type: SAVE_PROFILE_ERROR,
-                      peerId: profile.peerID,
-                      error: e,
-                    });
-                    reject(e);
-                  },
-                );
-            },
-            e => {
-              console.error(e);
-              dispatch({
-                type: SAVE_PROFILE_ERROR,
-                peerId: profile.peerID,
-                error: e,
-              });
-            }
-          );
-      }
-    );
+    if (!db) {
+      const error = new Error('There is no database connection.');
+
+      dispatch({
+        type: SAVE_PROFILE_ERROR,
+        peerId: profile.peerID,
+        error,
+      });
+
+      throw(error);
+    }
+
+    dispatch({
+      type: SAVING_PROFILE,
+      peerId: profile.peerID,
+    });
+
+    try {
+      const profileDoc = await db.instance.profiles.upsert(profile);
+    } catch (error) {
+      dispatch({
+        type: SAVE_PROFILE_ERROR,
+        peerId: profile.peerID,
+        error,
+      });
+    }
+
+    dispatch({
+      type: SAVE_PROFILE_SAVED,
+      peerId: profile.peerID,
+    });
   };
 }
 
@@ -234,7 +226,6 @@ export const validatePassphrase = passphrase => {
     errors.push('The passphrase must be at least 8 characters long, not counting spaces.');
   }
 
-  console.dir(errors.length ? errors : null);
   return errors.length ? errors : null;
 }
 
@@ -302,7 +293,7 @@ export const register = (seed, passphrase) => {
         peerId: login.peerId,
         profile: profile.toJSON(),
         seed,
-        encryptedSeed: encrypted,
+        encryptedSeed: encrypted && `${encrypted.result}|${encrypted.nonce}`,
       });
 
       sessionStorage.setItem('login', login.pw);
@@ -313,7 +304,6 @@ export const register = (seed, passphrase) => {
         dispatch(profileSet(login.peerId, p));
       });
     } catch (e) {
-      console.error(e);
       dispatch({
         type: REGISTER_ERROR,
         peerId: (login && login.peerId) || undefined,

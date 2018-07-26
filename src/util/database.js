@@ -8,7 +8,7 @@ QueryChangeDetector.enableDebugging();
 RxDB.plugin(require('pouchdb-adapter-idb'));
 RxDB.plugin(require('pouchdb-adapter-http'));
 
-const db = {
+let db = {
   promise: null,
   name: null,
   instance: null,
@@ -68,13 +68,29 @@ export function connect(name, password) {
 
 export function destroy() {
   if (db.instance) {
-    return db.instance.destroy()
-      .then(() => {
-        db.instance = null;
-        db.promise = null;
-        db.name = null;   
-      });
+    const destroyInstance = db.instance;
+    
+    db = {
+      promise: null,
+      name: null,
+      instance: null,
+    }
+
+    return destroyInstance.destroy();
+
+    // todo: log error on failed destroy.
   } else {
     return new Promise().resolve();
+  }
+}
+
+export function getCurDb() {
+  if (!db.instance) {
+    return null;
+  }
+
+  return {
+    name: db.name,
+    instance: db.instance,
   }
 }

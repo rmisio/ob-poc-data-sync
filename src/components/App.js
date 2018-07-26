@@ -42,9 +42,9 @@ class App extends Component {
     }
   }
 
-  componentWillReceiveProps(nextProps) {
-    console.dir(nextProps);
-  }
+  // componentWillReceiveProps(nextProps) {
+  //   console.dir(nextProps);
+  // }
 
   componentDidUpdate(prevProps) {
     let prevRoute = '';

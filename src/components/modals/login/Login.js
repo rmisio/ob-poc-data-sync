@@ -32,13 +32,7 @@ class Login extends Component {
       },
       registerSeed: Bip39.generateMnemonic(),
       registerShowUnconfirmedOptOut: false,
-      isEncryptedSeedAvailable: this.isEncryptedSeedAvailable(),
     }
-  }
-
-  isEncryptedSeedAvailable() {
-    return !!(this.props.lsLogin && this.props.lsLogin.logins &&
-      this.props.lsLogin.logins.length);
   }
 
   componentDidUpdate(prevProps) {
@@ -110,9 +104,6 @@ class Login extends Component {
       if (typeof data.password !== 'string' || !data.password) {
         errors.password = errors.password || [];
         errors.password.push('Please provide a password.');
-      } else if (data.password.length < 8) {
-        errors.password = errors.password || [];
-        errors.password.push('The password must be at least 8 characters.');
       }
 
       if (typeof this.state.loginForm.account !== 'string' || !this.state.loginForm.account) {
@@ -139,12 +130,8 @@ class Login extends Component {
         let encryptedSeed;
 
         try {
-          encryptedSeed = this.props.user.lsLogin.logins[this.state.loginForm.account].seed;
+          encryptedSeed = this.props.user.encryptedLogins[this.state.loginForm.account].seed;
         } catch (e) {
-          // pass
-        }
-
-        if (!encryptedSeed) {
           throw new Error(`There is no encrypted seed available for ${this.state.loginForm.account}`);
         }
 
@@ -262,16 +249,18 @@ class Login extends Component {
       </div>
     );
 
-    if (this.state.loginForm.loginType === 'password') {
-      const lsLogin = this.props.user.lsLogin;
-      let selectedLoginAcount;
-      const loginAccounts = Object.keys(lsLogin.logins)
+    const encryptedLoginsPresent = typeof this.props.user.encryptedLogins === 'object' &&
+      Object.keys(this.props.user.encryptedLogins).length;
+
+    if (this.state.loginForm.loginType === 'password' &&
+      encryptedLoginsPresent) {
+      const encryptedLogins = this.props.user.encryptedLogins;
+      const loginAccounts = Object.keys(encryptedLogins || {})
         .map((peerId, index) => {
-          const login = lsLogin.logins[peerId];
+          const login = encryptedLogins[peerId];
           
           if ((!this.state.loginForm.account &&
-            peerId === lsLogin.lastLoginPeerId) || index === 0) {
-            // selectedLoginAcount = peerId;
+            peerId === this.props.user.lastLoginPeerId) || index === 0) {
             this.state.loginForm.account = peerId;
           }
 
@@ -323,16 +312,16 @@ class Login extends Component {
                   <input type="radio" name="loginType" value="seed"
                     id="loginTypeSeed"
                     onChange={this.handleLoginFormInputChange}
-                    checked={this.state.loginForm.loginType === 'seed'} />
+                    checked={this.state.loginForm.loginType === 'seed' || !encryptedLoginsPresent} />
                   {'\u00A0'}seed
                 </label>
               </div>
               <div>
-                <label htmlFor="loginTypePassword">
+                <label htmlFor="loginTypePassword" className={!encryptedLoginsPresent ? 'disabled' : ''}>
                   <input type="radio" name="loginType" value="password"
                     id="loginTypePassword"
                     onChange={this.handleLoginFormInputChange}
-                    checked={this.state.loginForm.loginType === 'password'}/>
+                    checked={this.state.loginForm.loginType === 'password' && encryptedLoginsPresent} />
                   {'\u00A0'}password
                 </label>
               </div>
