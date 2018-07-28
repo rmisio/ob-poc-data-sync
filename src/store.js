@@ -2,7 +2,7 @@ import { createStore, applyMiddleware } from 'redux';
 import { history } from './';
 import { routerMiddleware } from 'react-router-redux';
 import thunk from 'redux-thunk';
-import storeLsLogin from 'middleware/lsLogin';
+import persistLogin from 'middleware/persistLogin';
 import rootReducer from 'reducers';
 import { initialState as initialUserState } from 'reducers/user';
 
@@ -19,9 +19,9 @@ export default initialState => {
       },
     },
     applyMiddleware(
-      routerMiddleware(history),
       thunk,
-      storeLsLogin,
+      routerMiddleware(history),
+      persistLogin,
     )
   );
 };

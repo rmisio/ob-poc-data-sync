@@ -4,7 +4,6 @@ import createHistory from 'history/createBrowserHistory'
 // import registerServiceWorker from './registerServiceWorker';
 import { Provider } from 'react-redux';
 import Store from 'store';
-import { requestSessionStorage } from 'actions/sessionStorage';
 import App from 'components/App';
 import 'index.css';
 import 'style/containers.css';
@@ -20,4 +19,3 @@ ReactDOM.render(
 );
 
 // registerServiceWorker();
-store.dispatch(requestSessionStorage());

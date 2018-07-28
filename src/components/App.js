@@ -29,22 +29,15 @@ class App extends Component {
         description: '',
       },
     };
-
-    this.loginIfSessionLoginAvailable();
-  }
-
-  loginIfSessionLoginAvailable() {
-    const seed = sessionStorage.getItem('login');
-    if (seed && seed !== 'explicit-logout' &&
-      this.props.user && !this.props.user.loggingIn &&
-      !this.props.user.loggedIn) {
-      this.props.actions.user.login(seed)
-    }
   }
 
   // componentWillReceiveProps(nextProps) {
   //   console.dir(nextProps);
   // }
+
+  componentDidMount() {
+    this.props.actions.user.listenForSessionLoginRequests();
+  }
 
   componentDidUpdate(prevProps) {
     let prevRoute = '';
@@ -63,10 +56,6 @@ class App extends Component {
       // pass
     }
 
-    if (!prevProps.user.sessionLoginSet && this.props.user.sessionLoginSet) {
-      this.loginIfSessionLoginAvailable();
-    }
-
     // todo: abstract this so it can be applied to all login required routes
     if (
       curRoute === '/profile' &&
@@ -83,7 +72,7 @@ class App extends Component {
       this.props.actions.modalActions.openModal({ modalType: 'login/Login' });
     }
   }
-
+  
   render() {
     const pathname = this.props.router.location && this.props.router.location.pathname;
 

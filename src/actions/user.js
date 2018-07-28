@@ -12,6 +12,8 @@ import {
 } from 'util/crypto';
 import { base64ToHex } from 'util/textEncode';
 
+// action const
+// todo: namespace into an object?
 export const LOGGED_OUT = 'LOGGED_OUT';
 export const LOGGED_IN = 'LOGGED_IN';
 export const LOGGING_IN = 'LOGGING_IN';
@@ -26,6 +28,7 @@ export const LS_LOGIN_SET = 'LS_LOGIN_SET';
 
 export const LOGIN_TYPE_SEED = 'LOGIN_TYPE_SEED';
 export const LOGIN_TYPE_PASSWORD = 'LOGIN_TYPE_PASSWORD';
+export const SESSION_LOGIN_EXPLICIT_LOGOUT = '[[==>EXPLICIT_LOGOUT<==]]';
 
 const loggedOut = () => {
   return {
@@ -34,11 +37,16 @@ const loggedOut = () => {
 };
 
 export const logout = () => {
-  sessionStorage.setItem('login', 'explicit-logout');
+  // todo: only logout if logged in
+  return function (dispatch, getState) {
+    const userState = getState().user;
 
-  return function (dispatch) {
+    // todo: cancel in-flight logins...?
+    if (!(userState.loggedIn || userState.loggingIn)) return;
     destroy();
-    dispatch(loggedOut());
+    dispatch(loggedOut({
+      peerId: userState.peerId,
+    }));
   };
 };
 
@@ -67,7 +75,7 @@ const _login = async seed => {
   };
 };
 
-export const login = (seed) => {
+export const login = seed => {
   if (typeof seed !== 'string') {
     throw new Error('A seed must be provided as a string.');
   }
@@ -80,11 +88,12 @@ export const login = (seed) => {
     let login;
     try {
       login = await _login(seed);
-      sessionStorage.setItem('login', login.pw);
       dispatch({
         type: LOGGED_IN,
         peerId: login.peerId,
       });
+
+      // todo todo to-dizzle
 
       // todo: unsubcribe on logout
       await login.db.profiles
@@ -203,7 +212,7 @@ export const saveProfile = (profile = {}) => {
     });
 
     try {
-      const profileDoc = await db.instance.profiles.upsert(profile);
+      const profileDoc = await db.iiinstance.profiles.upsert(profile);
     } catch (error) {
       dispatch({
         type: SAVE_PROFILE_ERROR,
@@ -227,20 +236,6 @@ export const validatePassphrase = passphrase => {
   }
 
   return errors.length ? errors : null;
-}
-
-/*
- * Returns the current lsLogin setting from the user state tree. You are required
- * to provide the state, so you will almost certainly be calling this method from
- * within a thunk.
- */
-const getLsLogin = async state => {
-  if (typeof state === 'null' || typeof state !== 'object') {
-    throw new Error('Please provide the state as an object.');
-  }
-
-  const { user: { lsLogin } } = state;
-  return  lsLogin;
 }
 
 export const register = (seed, passphrase) => {
@@ -296,8 +291,6 @@ export const register = (seed, passphrase) => {
         encryptedSeed: encrypted && `${encrypted.result}|${encrypted.nonce}`,
       });
 
-      sessionStorage.setItem('login', login.pw);
-
       // TODO: unsubscribe on logout
       profile.$.subscribe(p => {
         if (!p) return;
@@ -312,3 +305,64 @@ export const register = (seed, passphrase) => {
     }
   }
 };
+
+let firstSessionLoginReceived = false;
+
+export const requestSessionLogin = () => {
+  return function(dispatch, getState) {
+    const userState = getState().user;
+
+    window.addEventListener('storage', e => {
+      if (e.key === 'sessionLogin' && e.newValue) {
+        let data;
+
+        try {
+          data = JSON.parse(e.newValue);
+        } catch (e) {
+          return;
+        }
+
+        if (data.seed !== SESSION_LOGIN_EXPLICIT_LOGOUT) {
+          // another tab is logged in
+          if (!firstSessionLoginReceived && !userState.loggedIn &&
+            !userState.loggingIn && data.seed) {
+            login(data.seed);
+          }
+        // todo: only logout if the logout is from the user that's logged in
+        } else if ((userState.loggedIn || userState.loggingIn) &&
+          data.peerId === userState.peerId) {
+          // todo: the login process should probably be cancelable
+          // so we could cancel any mid-flight logins
+
+          // logout from another tab
+          logout();
+        }
+
+        firstSessionLoginReceived = true;
+      }
+    }, false);
+
+    localStorage.setItem('getSessionLogin', 'blah');
+    localStorage.removeItem('getSessionLogin');
+  }  
+}
+
+// let listeningForSessionLoginRequests = false;
+let listeningForSessionLoginRequests = true;
+
+export const listenForSessionLoginRequests = () => dispatch => {
+  if (listeningForSessionLoginRequests) return;
+
+  return function(dispatch) {
+    window.addEventListener('storage', e => {
+      if (e.key === 'getSessionLogin') {
+        // another tab asked for the sessionStorage -> send it
+        localStorage.setItem('sessionLogin', sessionStorage.getItem('sessionLogin'));
+        // the other tab should now have it, so we're done with it.
+        localStorage.removeItem('sessionLogin'); // <- could do short timeout as well.      
+      }
+    }, false);
+
+    listeningForSessionLoginRequests = true;
+  }
+}

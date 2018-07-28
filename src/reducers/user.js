@@ -5,9 +5,6 @@ import {
   REGISTERING, REGISTER_ERROR,
   LOGIN_TYPE_SEED, LOGIN_TYPE_PASSWORD,
 } from 'actions/user';
-import { SESSION_STORAGE_SET } from 'actions/sessionStorage';
-
-const sessionLogin = sessionStorage.getItem('login');
 
 export const initialState = {
   loggedIn: false,
@@ -15,7 +12,6 @@ export const initialState = {
   registering: false,
   peerId: null,
   savingProfile: false,
-  sessionLoginSet: sessionLogin && sessionLogin !== 'explicit-logout',
   profile: undefined,
 };
 
@@ -129,13 +125,6 @@ function saveProfileError(state={}, action) {
   }
 }
 
-function sessionLoginSet(state={}, action) {
-  return {
-    ...state,
-    sessionLoginSet: true,
-  }
-}
-
 export default (state=initialState, action) => {
   switch(action.type) {
     case LOGGED_OUT:
@@ -158,8 +147,6 @@ export default (state=initialState, action) => {
       return saveProfileSaved(state, action);
     case SAVE_PROFILE_ERROR:
       return saveProfileError(state, action);
-    case SESSION_STORAGE_SET:
-      return sessionLoginSet(state, action);
     default:
       return state;
   }
