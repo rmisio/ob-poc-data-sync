@@ -2,10 +2,10 @@ import {
   LOGGED_IN,
   PROFILE_SET,
   LOGGED_OUT,
-  SESSION_LOGIN_EXPLICIT_LOGOUT,
 } from 'actions/user';
 
 const storeLsLogin = store => next => action => {
+  const curState = store.getState();
   const result = next(action);
   const nextState = store.getState();
 
@@ -18,19 +18,16 @@ const storeLsLogin = store => next => action => {
     localStorage.setItem('login', JSON.stringify(lsLogin));
 
     if (action.type === LOGGED_IN) {
-      sessionStorage.setItem('sessionLogin', JSON.stringify({
-        peerId: nextState.user.peerId,
-        seed: nextState.user.seed,
-      }));
+      sessionStorage.setItem('sessionLogin', action.seed);
     }
   }
 
-  if (action.type === LOGGED_OUT) {
-    sessionStorage.setItem('sessionLogin', JSON.stringify({
-      peerId: action.peerId,
-      seed: SESSION_LOGIN_EXPLICIT_LOGOUT,
-    }));
-  }
+  // if (action.type === LOGGED_OUT) {
+  //   sessionStorage.setItem('sessionLogin', JSON.stringify({
+  //     peerId: curState.user.peerId,
+  //     seed: SESSION_LOGIN_EXPLICIT_LOGOUT,
+  //   }));
+  // }
 
   return result;
 }

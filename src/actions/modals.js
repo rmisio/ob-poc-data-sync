@@ -1,5 +1,3 @@
-import { singletonModals } from 'reducers/modals';
-
 export const OPEN_MODAL = 'OPEN_MODAL';
 export const CLOSE_MODAL = 'CLOSE_MODAL';
 
@@ -7,11 +5,6 @@ export const openModal = (props = {}) => {
   if (typeof props.modalType !== 'string') {
     throw new Error('A modalType must be provided with the props.');
   }
-
-  // if (!singletonModals.includes(props.modalType) &&
-  //   typeof props.modalId !== 'string') {
-  //   throw new Error('For non-singleton modals, a modalId must be provided as a string.');
-  // }
 
   return {
     type: OPEN_MODAL,

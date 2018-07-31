@@ -49,7 +49,7 @@ export function connect(name, password) {
   const dbName = `ob${name}`;
   
   if (db.promise) {
-    if (db.name !== dbName) {
+    if (db.name !== dbName && db.instance) {
       return db.instance.destroy()
         .then(
           () => {

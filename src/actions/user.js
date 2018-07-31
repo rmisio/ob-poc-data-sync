@@ -13,7 +13,7 @@ import {
 import { base64ToHex } from 'util/textEncode';
 
 // action const
-// todo: namespace into an object?
+// todo: namespace into an object or seperate file?
 export const LOGGED_OUT = 'LOGGED_OUT';
 export const LOGGED_IN = 'LOGGED_IN';
 export const LOGGING_IN = 'LOGGING_IN';
@@ -28,7 +28,6 @@ export const LS_LOGIN_SET = 'LS_LOGIN_SET';
 
 export const LOGIN_TYPE_SEED = 'LOGIN_TYPE_SEED';
 export const LOGIN_TYPE_PASSWORD = 'LOGIN_TYPE_PASSWORD';
-export const SESSION_LOGIN_EXPLICIT_LOGOUT = '[[==>EXPLICIT_LOGOUT<==]]';
 
 const loggedOut = () => {
   return {
@@ -44,6 +43,8 @@ export const logout = () => {
     // todo: cancel in-flight logins...?
     if (!(userState.loggedIn || userState.loggingIn)) return;
     destroy();
+    localStorage.setItem('sessionLogout', userState.peerId);
+    localStorage.removeItem('sessionLogout');
     dispatch(loggedOut({
       peerId: userState.peerId,
     }));
@@ -80,20 +81,21 @@ export const login = seed => {
     throw new Error('A seed must be provided as a string.');
   }
 
-  return async function (dispatch) {
+  return async dispatch => {
     dispatch({
       type: LOGGING_IN,
     });
 
     let login;
+
     try {
       login = await _login(seed);
+
       dispatch({
         type: LOGGED_IN,
         peerId: login.peerId,
+        seed,
       });
-
-      // todo todo to-dizzle
 
       // todo: unsubcribe on logout
       await login.db.profiles
@@ -103,6 +105,7 @@ export const login = seed => {
           dispatch(profileSet(login.peerId, profile.toJSON()));
         });
     } catch (e) {
+      console.error(e);
       dispatch({
         type: LOGIN_ERROR,
         peerId: (login && login.peerId) || undefined,
@@ -151,7 +154,7 @@ export const loginViaPassword = (encryptedSeed, passphrase) => {
       return;
     }
 
-    login(decryptedSeed)(dispatch);
+    return login(decryptedSeed)(dispatch);
   }
 }
 
@@ -306,63 +309,47 @@ export const register = (seed, passphrase) => {
   }
 };
 
-let firstSessionLoginReceived = false;
-
 export const requestSessionLogin = () => {
   return function(dispatch, getState) {
     const userState = getState().user;
-
-    window.addEventListener('storage', e => {
-      if (e.key === 'sessionLogin' && e.newValue) {
-        let data;
-
-        try {
-          data = JSON.parse(e.newValue);
-        } catch (e) {
-          return;
-        }
-
-        if (data.seed !== SESSION_LOGIN_EXPLICIT_LOGOUT) {
+    window.addEventListener('storage',
+      e => {
+        if (e.key === 'sessionLogin' && e.newValue) {
+          console.dir(userState);
           // another tab is logged in
-          if (!firstSessionLoginReceived && !userState.loggedIn &&
-            !userState.loggingIn && data.seed) {
-            login(data.seed);
+          if (e.newValue && !userState.loggedIn &&
+            !userState.loggingIn && !userState.registering) {
+            dispatch(login(e.newValue));
           }
-        // todo: only logout if the logout is from the user that's logged in
-        } else if ((userState.loggedIn || userState.loggingIn) &&
-          data.peerId === userState.peerId) {
-          // todo: the login process should probably be cancelable
-          // so we could cancel any mid-flight logins
-
-          // logout from another tab
-          logout();
         }
-
-        firstSessionLoginReceived = true;
-      }
-    }, false);
-
+      },
+      false
+    );
     localStorage.setItem('getSessionLogin', 'blah');
     localStorage.removeItem('getSessionLogin');
   }  
 }
 
-// let listeningForSessionLoginRequests = false;
-let listeningForSessionLoginRequests = true;
+let listeningForSessionLoginRequests = false;
 
-export const listenForSessionLoginRequests = () => dispatch => {
+export const listenForSessionLoginEvents = () => (dispatch, getState) => {
   if (listeningForSessionLoginRequests) return;
 
-  return function(dispatch) {
-    window.addEventListener('storage', e => {
-      if (e.key === 'getSessionLogin') {
-        // another tab asked for the sessionStorage -> send it
-        localStorage.setItem('sessionLogin', sessionStorage.getItem('sessionLogin'));
-        // the other tab should now have it, so we're done with it.
-        localStorage.removeItem('sessionLogin'); // <- could do short timeout as well.      
-      }
-    }, false);
+  window.addEventListener('storage', e => {
+    const userState = getState().user || {};
 
-    listeningForSessionLoginRequests = true;
-  }
+    console.log(`the storage funk is ${e.key} - the blaster is ${e.newValue}`);
+
+    if (e.key === 'getSessionLogin') {
+      // another tab asked for the sessionStorage -> send it
+      localStorage.setItem('sessionLogin', sessionStorage.getItem('sessionLogin'));
+      // the other tab should now have it, so we're done with it.
+      localStorage.removeItem('sessionLogin'); // <- could do short timeout as well.      
+    } else if (e.key === 'sessionLogout' && userState.peerId === e.newValue) {
+      console.log('HI Beaver');
+      dispatch(logout());
+    }
+  }, false);
+
+  listeningForSessionLoginRequests = true;
 }

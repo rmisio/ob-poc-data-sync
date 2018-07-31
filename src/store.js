@@ -16,6 +16,7 @@ export default initialState => {
       user: {
         ...initialUserState,
         ...lsLogin,
+        sessionLogin: sessionStorage.getItem('sessionLogin'),
       },
     },
     applyMiddleware(

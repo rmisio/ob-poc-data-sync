@@ -46,11 +46,13 @@ function loggedIn(state={}, action) {
   let encryptedLogins = state.encryptedLogins;
 
   if (action.encryptedSeed) {
-    encryptedLogins = state.encryptedLogins || {};
-    encryptedLogins[action.peerId] = {
-      name: action.profile.name,
-      seed: action.encryptedSeed,
-    };
+    encryptedLogins = {
+      ...state.encryptedLogins,
+      [action.peerId]: {
+        name: action.profile && action.profile.name || action.peerId,
+        seed: action.encryptedSeed,
+      },
+    }
   }
 
   return {
@@ -65,7 +67,7 @@ function loggedIn(state={}, action) {
     lastLoginPeerId: action.peerId,
     lastLoginType: action.encryptedSeed === null ?
       LOGIN_TYPE_PASSWORD : LOGIN_TYPE_SEED,
-  }  
+  }
 }
 
 function registering(state={}, action) {
@@ -88,6 +90,18 @@ function registerError(state={}, action) {
 }
 
 function profileSet(state={}, action) {
+  let encryptedLogins = state.encryptedLogins || {};
+
+  if (encryptedLogins[action.peerId]) {
+    encryptedLogins = {
+      ...encryptedLogins,
+      [action.peerId]: {
+        ...encryptedLogins[action.peerId],
+        name: action.profile && action.profile.name || action.peerId,
+      }
+    }
+  }
+
   return {
     ...state,
     loggedIn: true,
@@ -95,6 +109,7 @@ function profileSet(state={}, action) {
     registering: false,
     peerId: action.peerId,
     profile: action.profile,
+    encryptedLogins,
   }
 }
 

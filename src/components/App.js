@@ -29,6 +29,10 @@ class App extends Component {
         description: '',
       },
     };
+
+    if (this.props.user.sessionLogin) {
+      this.props.actions.user.login(this.props.user.sessionLogin);
+    }
   }
 
   // componentWillReceiveProps(nextProps) {
@@ -36,7 +40,8 @@ class App extends Component {
   // }
 
   componentDidMount() {
-    this.props.actions.user.listenForSessionLoginRequests();
+    this.props.actions.user.listenForSessionLoginEvents();
+    this.props.actions.user.requestSessionLogin();
   }
 
   componentDidUpdate(prevProps) {
