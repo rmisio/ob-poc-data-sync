@@ -1,35 +1,67 @@
+import uuidv4 from 'uuid/v4';
+import { singletonModals } from 'reducers/modals';
+
 export const OPEN_MODAL = 'OPEN_MODAL';
 export const CLOSE_MODAL = 'CLOSE_MODAL';
 
+/*
+ * Will open a modal with the given props.
+ *
+ * @param {object} props - The props the modal will be created with or set with if
+ *   it's an already open singleton modal.
+ * @param {string} props.modalType - The type of modal. This should correspond with a
+ *   constant entry in this file.
+ *
+ * @returns {string} - The ID of the opened modal. This will be necessary if you want to
+ *   close the specific instance of this modal.
+ */
 export const openModal = (props = {}) => {
   if (typeof props.modalType !== 'string') {
     throw new Error('A modalType must be provided with the props.');
   }
 
-  return {
-    type: OPEN_MODAL,
-    ...props,
+  // todo: check that type matches a declared constant
+
+  return (dispatch, getState) => {
+    const curModal = getState().modals.openModals
+      .find(modal => singletonModals.includes(props.modalType) &&
+        modal.modalType === props.modalType);
+
+    const modalId = curModal ? curModal.modalId : uuidv4();
+
+    return modalId;
   }
 };
 
 /*
- * For singleton modals, you should provide the modalType and any open single instance
- * of that type will be closed. If you provide the type for a non-singleton modal, all
- * open instances of that modal will be closed. To close a specific non-singleton
- * instance, be sure to pass in the modal id.
+ * Will close a modal.
+ *
+ * @param {object} options - You must provide either the modalType or modalId.
+ * @param {string} [options.modalType] - The type of modal to close. Any open
+ *   instances of this modal type will be closed.
+ * @param {string} [options.modalId] - The modal instance with this ID will be
+ *   closed.
  */
-export const closeModal = (type, id) => {
-  if (typeof type !== 'string') {
-    throw new Error('Please provide the type as a string.');
+export const closeModal = (options={}) => {
+  if (options.modalType !== undefined &&
+    typeof options.modalType !== 'string') {
+    throw new Error('If providing the type, it must be provided in the options hash' +
+      'as a string.');
   }
 
-  if (id !== undefined && id !== null && typeof id !== 'string') {
-    throw new Error('If providing an id, it must be provided as a string.');
-  }  
+  if (options.modalId !== undefined &&
+    typeof options.modalId !== 'string') {
+    throw new Error('If providing the ID, it must be provided in the options hash' +
+      'as a string.');
+  }
+
+  if (!options.modalId && !options.modalType) {
+    throw new Error('Either a modalId or modalType must be provided in the options hash.');
+  }
 
   return {
     type: CLOSE_MODAL,
-    modalType: type,
-    modalId: id,
+    modalType: options.modalType,
+    modalId: options.modalId,
   }
 };

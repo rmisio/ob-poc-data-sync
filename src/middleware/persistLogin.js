@@ -5,7 +5,6 @@ import {
 } from 'actions/user';
 
 const storeLsLogin = store => next => action => {
-  const curState = store.getState();
   const result = next(action);
   const nextState = store.getState();
 

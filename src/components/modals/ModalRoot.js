@@ -2,7 +2,6 @@ import React, { Component } from 'react';
 import { bindActionCreators } from 'redux';
 import { connect } from 'react-redux';
 import * as ModalActions from 'actions/modals';
-import { singletonModals } from 'reducers/modals';
 import './ModalRoot.css';
 
 // todo: export modal constants from their respective component.

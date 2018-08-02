@@ -257,10 +257,10 @@ class Login extends Component {
         .map((peerId, index) => {
           const login = encryptedLogins[peerId];
           
-          if ((!this.state.loginForm.account &&
-            peerId === this.props.user.lastLoginPeerId) || index === 0) {
-            this.state.loginForm.account = peerId;
-          }
+          // if ((!this.state.loginForm.account &&
+          //   peerId === this.props.user.lastLoginPeerId) || index === 0) {
+          //   this.state.loginForm.account = peerId;
+          // }
 
           return <option value={peerId} key={peerId}>{login.name}</option>;
         });
@@ -430,7 +430,6 @@ class Login extends Component {
 
 function mapStateToProps(state, prop) {
   return {
-    // router: state.router,
     modals: state.modals,
     user: state.user,
   };

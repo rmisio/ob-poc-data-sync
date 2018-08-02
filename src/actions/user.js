@@ -215,7 +215,7 @@ export const saveProfile = (profile = {}) => {
     });
 
     try {
-      const profileDoc = await db.instance.profiles.upsert(profile);
+      await db.instance.profiles.upsert(profile);
     } catch (error) {
       dispatch({
         type: SAVE_PROFILE_ERROR,

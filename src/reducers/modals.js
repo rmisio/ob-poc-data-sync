@@ -1,4 +1,3 @@
-import { move } from 'util/array';
 import {
   OPEN_MODAL,
   CLOSE_MODAL,
@@ -21,17 +20,25 @@ export const singletonModals = [
 ];
 
 const openModal = (state={}, action) => {
-  if (singletonModals.includes(action.modalType)) {
-    const curIndex =
-      openModals.find(modal => modal.type === action.type);
-    if (typeof curIndex === 'number') {
-      move(curIndex, openModals.length);
-    }
+  let openModals;
+
+  // todo - abstract out bringToTop function
+
+  const curModal =
+    openModals.find(modal =>
+      singletonModals.includes(action.modalType) &&
+        modal.modalType === action.modalType);
+  
+  if (curModal) {
+    openModals = openModals.filter(modal => modal !== curModal);
   }
 
   const modalState = { ...action };
   delete modalState.type;
-  openModals.push(modalState);
+  openModals = state.openModals.concat({
+    ...curModal,
+    ...modalState,
+  });
 
   return {
     ...state,

@@ -49,7 +49,7 @@ function loggedIn(state={}, action) {
     encryptedLogins = {
       ...state.encryptedLogins,
       [action.peerId]: {
-        name: action.profile && action.profile.name || action.peerId,
+        name: action.profile && (action.profile.name || action.peerId),
         seed: action.encryptedSeed,
       },
     }
@@ -97,7 +97,7 @@ function profileSet(state={}, action) {
       ...encryptedLogins,
       [action.peerId]: {
         ...encryptedLogins[action.peerId],
-        name: action.profile && action.profile.name || action.peerId,
+        name: action.profile && (action.profile.name || action.peerId),
       }
     }
   }

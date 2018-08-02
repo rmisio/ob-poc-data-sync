@@ -9,6 +9,18 @@ import { initialState as initialUserState } from 'reducers/user';
 let lsLogin = localStorage.getItem('login');
 lsLogin = lsLogin && JSON.parse(lsLogin);
 
+const middlewares = [
+  thunk,
+  routerMiddleware(history),
+  persistLogin,
+];
+
+if (process.env.NODE_ENV === 'development') {
+  const { logger } = require('redux-logger');
+
+  middlewares.push(logger);
+}
+
 export default initialState => {
   return createStore(
     rootReducer,
@@ -19,10 +31,6 @@ export default initialState => {
         initialSessionLogin: sessionStorage.getItem('sessionLogin'),
       },
     },
-    applyMiddleware(
-      thunk,
-      routerMiddleware(history),
-      persistLogin,
-    )
+    applyMiddleware(...middlewares),
   );
 };
