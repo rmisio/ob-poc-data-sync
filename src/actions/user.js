@@ -193,50 +193,11 @@ export const saveProfile = (profile = {}) => {
     throw new Error('The profile must have a peerID as a string.');
   }
 
-  return dispatch => {
-    return new Promise((resolve, reject) => {
-      const db = getCurDb();
-
-      if (!db || true) {
-        const error = new Error('There is no database connection.');
-
-        dispatch({
-          type: SAVE_PROFILE_ERROR,
-          peerId: profile.peerID,
-          error,
-        });
-
-        return reject(new Error('no more soup for you'));
-      }
-
-      dispatch({
-        type: SAVING_PROFILE,
-        peerId: profile.peerID,
-      });
-
-      db.instance.profiles.upsert(profile)
-        .then(
-          profile => {
-            dispatch({
-              type: SAVE_PROFILE_SAVED,
-              peerId: profile.peerID,
-            });          
-          },
-          error => {
-            dispatch({
-              type: SAVE_PROFILE_ERROR,
-              peerId: profile.peerID,
-              error,
-            });          
-          });
-    });
-  };
-
   // TODO: put protection on the database that only allows a single profile
-  return async function (dispatch) {
+  return async dispatch => {
     const db = getCurDb();
 
-    if (!db || true) {
+    if (!db) {
       const error = new Error('There is no database connection.');
 
       dispatch({
@@ -244,6 +205,8 @@ export const saveProfile = (profile = {}) => {
         peerId: profile.peerID,
         error,
       });
+
+      return;
     }
 
     dispatch({
@@ -252,13 +215,14 @@ export const saveProfile = (profile = {}) => {
     });
 
     try {
-      const profileDoc = await db.iiinstance.profiles.upsert(profile);
+      const profileDoc = await db.instance.profiles.upsert(profile);
     } catch (error) {
       dispatch({
         type: SAVE_PROFILE_ERROR,
         peerId: profile.peerID,
         error,
       });
+      return;
     }
 
     dispatch({

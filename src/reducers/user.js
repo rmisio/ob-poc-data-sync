@@ -38,7 +38,7 @@ function loginError(state={}, action) {
     loggingIn: false,
     registering: false,
     peerId: action.peerId,    
-    loginError: action.error.message || '', 
+    loginError: action.error.message || '',
   }
 }
 
