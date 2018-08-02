@@ -16,18 +16,15 @@ const storeLsLogin = store => next => action => {
       encryptedLogins: nextState.user.encryptedLogins,
     };
     localStorage.setItem('login', JSON.stringify(lsLogin));
-
-    if (action.type === LOGGED_IN) {
-      sessionStorage.setItem('sessionLogin', action.seed);
-    }
   }
 
-  // if (action.type === LOGGED_OUT) {
-  //   sessionStorage.setItem('sessionLogin', JSON.stringify({
-  //     peerId: curState.user.peerId,
-  //     seed: SESSION_LOGIN_EXPLICIT_LOGOUT,
-  //   }));
-  // }
+  if (action.type === LOGGED_IN) {
+    sessionStorage.setItem('sessionLogin', action.seed);
+  }
+
+  if (action.type === LOGGED_OUT) {
+    sessionStorage.removeItem('sessionLogin');
+  }
 
   return result;
 }

@@ -20,3 +20,7 @@ p {
   cursor: default;
   opacity: 0.6;
 }
+
+.displayBlock {
+  display: block;
+}

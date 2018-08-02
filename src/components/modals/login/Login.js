@@ -11,8 +11,6 @@ import ErrorList from 'components/ErrorList';
 import EncryptOptOutConfirm from './EncryptOptOutConfirm';
 import './Login.css';
 
-// handleCreateClick
-
 class Login extends Component {
   constructor(props) {
     super(props);
@@ -36,7 +34,7 @@ class Login extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.user.loggedIn) {
+    if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
       this.props.actions.modals.closeModal('login/Login');
     } else if (this.props.user.loginError &&
       prevProps.user.loginError !== this.props.user.loginError) {

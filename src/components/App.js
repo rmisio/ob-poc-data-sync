@@ -29,10 +29,6 @@ class App extends Component {
         description: '',
       },
     };
-
-    if (this.props.user.sessionLogin) {
-      this.props.actions.user.login(this.props.user.sessionLogin);
-    }
   }
 
   // componentWillReceiveProps(nextProps) {
@@ -41,7 +37,18 @@ class App extends Component {
 
   componentDidMount() {
     this.props.actions.user.listenForSessionLoginEvents();
-    this.props.actions.user.requestSessionLogin();
+
+    if (this.props.user.initialSessionLogin) {
+      this.props.actions.user.login(this.props.user.initialSessionLogin);
+    // } else if (
+    //   !(window.performance && performance.navigation.type === 1)
+    // ) {
+    //   // on page reloads don't try and get the session login from other
+    //   // tabs      
+    //   this.props.actions.user.requestSessionLogin();
+    }
+
+    this.props.actions.user.requestSessionLogin();    
   }
 
   componentDidUpdate(prevProps) {

@@ -193,11 +193,50 @@ export const saveProfile = (profile = {}) => {
     throw new Error('The profile must have a peerID as a string.');
   }
 
+  return dispatch => {
+    return new Promise((resolve, reject) => {
+      const db = getCurDb();
+
+      if (!db || true) {
+        const error = new Error('There is no database connection.');
+
+        dispatch({
+          type: SAVE_PROFILE_ERROR,
+          peerId: profile.peerID,
+          error,
+        });
+
+        return reject(new Error('no more soup for you'));
+      }
+
+      dispatch({
+        type: SAVING_PROFILE,
+        peerId: profile.peerID,
+      });
+
+      db.instance.profiles.upsert(profile)
+        .then(
+          profile => {
+            dispatch({
+              type: SAVE_PROFILE_SAVED,
+              peerId: profile.peerID,
+            });          
+          },
+          error => {
+            dispatch({
+              type: SAVE_PROFILE_ERROR,
+              peerId: profile.peerID,
+              error,
+            });          
+          });
+    });
+  };
+
   // TODO: put protection on the database that only allows a single profile
   return async function (dispatch) {
     const db = getCurDb();
 
-    if (!db) {
+    if (!db || true) {
       const error = new Error('There is no database connection.');
 
       dispatch({
@@ -205,8 +244,6 @@ export const saveProfile = (profile = {}) => {
         peerId: profile.peerID,
         error,
       });
-
-      throw(error);
     }
 
     dispatch({
@@ -314,8 +351,7 @@ export const requestSessionLogin = () => {
     const userState = getState().user;
     window.addEventListener('storage',
       e => {
-        if (e.key === 'sessionLogin' && e.newValue) {
-          console.dir(userState);
+        if (e.key === 'sessionLogin') {
           // another tab is logged in
           if (e.newValue && !userState.loggedIn &&
             !userState.loggingIn && !userState.registering) {
@@ -338,15 +374,17 @@ export const listenForSessionLoginEvents = () => (dispatch, getState) => {
   window.addEventListener('storage', e => {
     const userState = getState().user || {};
 
-    console.log(`the storage funk is ${e.key} - the blaster is ${e.newValue}`);
-
     if (e.key === 'getSessionLogin') {
       // another tab asked for the sessionStorage -> send it
-      localStorage.setItem('sessionLogin', sessionStorage.getItem('sessionLogin'));
+      const sessionLogin = sessionStorage.getItem('sessionLogin');
+
+      if (sessionLogin) {
+        localStorage.setItem('sessionLogin', sessionStorage.getItem('sessionLogin'));
+      }
+
       // the other tab should now have it, so we're done with it.
       localStorage.removeItem('sessionLogin'); // <- could do short timeout as well.      
     } else if (e.key === 'sessionLogout' && userState.peerId === e.newValue) {
-      console.log('HI Beaver');
       dispatch(logout());
     }
   }, false);

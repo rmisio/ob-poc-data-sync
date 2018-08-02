@@ -42,6 +42,10 @@ class LoginMenu extends Component {
     this.props.actions.modals.openModal({ modalType: 'login/Login' });
   }
 
+  handleSwitchAccountClick = event => {
+    this.props.actions.modals.openModal({ modalType: 'login/Login' });
+  }
+
   render() {
     let content;
 
@@ -49,9 +53,11 @@ class LoginMenu extends Component {
       let popUpMenu = null;
 
       if (this.state.menuOpen) {
+        // todo: use some generic nav menu styling once we bring the styles over
         popUpMenu = (
           <nav className="LoginMenu-popUpMenu">
-            <a onClick={this.handleLogoutClick}>Logout</a>
+            <a className="displayBlock txLft" onClick={this.handleLogoutClick}>Logout</a>
+            <a className="displayBlock txLft" onClick={this.handleSwitchAccountClick}>Switch Account</a>
           </nav>          
         );
       }
