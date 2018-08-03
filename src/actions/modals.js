@@ -29,6 +29,12 @@ export const openModal = (props = {}) => {
 
     const modalId = curModal ? curModal.modalId : uuidv4();
 
+    dispatch({
+      type: OPEN_MODAL,
+      ...props,
+      modalId,
+    });
+
     return modalId;
   }
 };

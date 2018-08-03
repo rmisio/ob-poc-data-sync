@@ -20,7 +20,7 @@ export const singletonModals = [
 ];
 
 const openModal = (state={}, action) => {
-  let openModals;
+  let openModals = state.openModals;
 
   // todo - abstract out bringToTop function
 

@@ -32,7 +32,10 @@ class ModalRoot extends Component {
   }
 
   handleClick = event => {
-    this.props.actions.closeModal(this.props.modalType, this.props.modalId);
+    this.props.actions.closeModal({
+      modalType: this.props.modalType,
+      modalId: this.props.modalId,
+    });
   }
 
   render() {

@@ -43,7 +43,8 @@ class LoginMenu extends Component {
   }
 
   handleSwitchAccountClick = event => {
-    this.props.actions.modals.openModal({ modalType: 'login/Login' });
+    const id = this.props.actions.modals.openModal({ modalType: 'login/Login' });
+    console.log(`opening modal ${id}`);
   }
 
   render() {

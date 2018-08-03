@@ -35,7 +35,7 @@ class Login extends Component {
 
   componentDidUpdate(prevProps) {
     if (!prevProps.user.loggedIn && this.props.user.loggedIn) {
-      this.props.actions.modals.closeModal('login/Login');
+      this.props.actions.modals.closeModal({ modalId: this.props.modalId });
     } else if (this.props.user.loginError &&
       prevProps.user.loginError !== this.props.user.loginError) {
       this.props.actions.modals.openModal({

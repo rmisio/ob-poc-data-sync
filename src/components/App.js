@@ -7,6 +7,7 @@ import * as ModalActions from 'actions/modals';
 import * as UserActions from 'actions/user';
 import { Route } from 'react-router'
 import { Link } from 'react-router-dom';
+import UserPage from 'containers/UserPage';
 import Home from 'components/Home';
 import Profile from 'components/Profile';
 import LoginMenu from 'components/LoginMenu';
@@ -40,12 +41,6 @@ class App extends Component {
 
     if (this.props.user.initialSessionLogin) {
       this.props.actions.user.login(this.props.user.initialSessionLogin);
-    // } else if (
-    //   !(window.performance && performance.navigation.type === 1)
-    // ) {
-    //   // on page reloads don't try and get the session login from other
-    //   // tabs      
-    //   this.props.actions.user.requestSessionLogin();
     }
 
     this.props.actions.user.requestSessionLogin();    
@@ -111,6 +106,7 @@ class App extends Component {
               <div>
                 <Route exact path="/" component={Home} />
                 <Route path="/profile" component={Profile} />
+                <Route path="/Qm:peerId" component={UserPage} />
               </div>
               <div className="App-modalContainer">
                 {
