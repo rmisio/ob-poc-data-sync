@@ -1,14 +1,10 @@
-import {
-  connect,
-  destroy,
-  getCurDb,
-} from 'util/database';
+import { connect, destroy, getCurDb } from 'util/database';
 import {
   hashText,
   identityKeyFromSeed,
   identityFromKey,
   decrypt,
-  encrypt,
+  encrypt
 } from 'util/crypto';
 import { base64ToHex } from 'util/textEncode';
 
@@ -31,13 +27,13 @@ export const LOGIN_TYPE_PASSWORD = 'LOGIN_TYPE_PASSWORD';
 
 const loggedOut = () => {
   return {
-    type: LOGGED_OUT,
-  }
+    type: LOGGED_OUT
+  };
 };
 
 export const logout = () => {
   // todo: only logout if logged in
-  return function (dispatch, getState) {
+  return function(dispatch, getState) {
     const userState = getState().user;
 
     // todo: cancel in-flight logins...?
@@ -45,16 +41,18 @@ export const logout = () => {
     destroy();
     localStorage.setItem('sessionLogout', userState.peerId);
     localStorage.removeItem('sessionLogout');
-    dispatch(loggedOut({
-      peerId: userState.peerId,
-    }));
+    dispatch(
+      loggedOut({
+        peerId: userState.peerId
+      })
+    );
   };
 };
 
 const profileSet = (peerId, profile = {}) => ({
   type: PROFILE_SET,
   peerId,
-  profile,
+  profile
 });
 
 const _login = async seed => {
@@ -64,15 +62,18 @@ const _login = async seed => {
   const { peerId } = await identityFromKey(edd2519PrivateKey.bytes);
   const pw = await hashText(seed, {
     encoding: 'hex',
-    hmacSeed: 'ob-db-password-seed',
+    hmacSeed: 'ob-db-password-seed'
   });
-  const db = await connect(dbName, pw);
+  const db = await connect(
+    dbName,
+    pw
+  );
 
   return {
     db,
     name: dbName,
     pw,
-    peerId,
+    peerId
   };
 };
 
@@ -83,7 +84,7 @@ export const login = seed => {
 
   return async dispatch => {
     dispatch({
-      type: LOGGING_IN,
+      type: LOGGING_IN
     });
 
     let login;
@@ -94,25 +95,23 @@ export const login = seed => {
       dispatch({
         type: LOGGED_IN,
         peerId: login.peerId,
-        seed,
+        seed
       });
 
       // todo: unsubcribe on logout
-      await login.db.profiles
-        .findOne(login.peerId)
-        .$.subscribe(profile => {
-          if (!profile) return;
-          dispatch(profileSet(login.peerId, profile.toJSON()));
-        });
+      await login.db.profiles.findOne(login.peerId).$.subscribe(profile => {
+        if (!profile) return;
+        dispatch(profileSet(login.peerId, profile.toJSON()));
+      });
     } catch (e) {
       console.error(e);
       dispatch({
         type: LOGIN_ERROR,
         peerId: (login && login.peerId) || undefined,
-        error: e,
+        error: e
       });
     }
-  }
+  };
 };
 
 export const loginViaPassword = (encryptedSeed, passphrase) => {
@@ -124,19 +123,17 @@ export const loginViaPassword = (encryptedSeed, passphrase) => {
     throw new Error('Please provide a password.');
   }
 
-  return async function (dispatch) {
+  return async function(dispatch) {
     dispatch({
-      type: LOGGING_IN,
+      type: LOGGING_IN
     });
 
-    const splitEncryptedSeed =
-      encryptedSeed.split('|');
+    const splitEncryptedSeed = encryptedSeed.split('|');
 
     if (splitEncryptedSeed.length !== 2) {
       dispatch({
         type: LOGIN_ERROR,
-        error:
-          new Error('The encrypted seed is not in the correct format.'),
+        error: new Error('The encrypted seed is not in the correct format.')
       });
       return;
     }
@@ -148,15 +145,14 @@ export const loginViaPassword = (encryptedSeed, passphrase) => {
     if (decryptedSeed === null) {
       dispatch({
         type: LOGIN_ERROR,
-        error:
-          new Error('Unable to decrypt the seed. Invalid password.'),
+        error: new Error('Unable to decrypt the seed. Invalid password.')
       });
       return;
     }
 
     return login(decryptedSeed)(dispatch);
-  }
-}
+  };
+};
 
 const firstNames = [
   'Sam',
@@ -170,7 +166,7 @@ const firstNames = [
   'Chris',
   'Tyler',
   'Justin',
-  'Washington',
+  'Washington'
 ];
 
 const lastNames = [
@@ -185,7 +181,7 @@ const lastNames = [
   'Pacia',
   'Smithsonian',
   'Drake',
-  'Sanchez',
+  'Sanchez'
 ];
 
 export const saveProfile = (profile = {}) => {
@@ -203,7 +199,7 @@ export const saveProfile = (profile = {}) => {
       dispatch({
         type: SAVE_PROFILE_ERROR,
         peerId: profile.peerID,
-        error,
+        error
       });
 
       return;
@@ -211,7 +207,7 @@ export const saveProfile = (profile = {}) => {
 
     dispatch({
       type: SAVING_PROFILE,
-      peerId: profile.peerID,
+      peerId: profile.peerID
     });
 
     try {
@@ -220,27 +216,29 @@ export const saveProfile = (profile = {}) => {
       dispatch({
         type: SAVE_PROFILE_ERROR,
         peerId: profile.peerID,
-        error,
+        error
       });
       return;
     }
 
     dispatch({
       type: SAVE_PROFILE_SAVED,
-      peerId: profile.peerID,
+      peerId: profile.peerID
     });
   };
-}
+};
 
 export const validatePassphrase = passphrase => {
   const errors = [];
 
   if (!passphrase || passphrase.replace(/\s/g, '').length < 8) {
-    errors.push('The passphrase must be at least 8 characters long, not counting spaces.');
+    errors.push(
+      'The passphrase must be at least 8 characters long, not counting spaces.'
+    );
   }
 
   return errors.length ? errors : null;
-}
+};
 
 export const register = (seed, passphrase) => {
   if (typeof seed !== 'string') {
@@ -248,14 +246,14 @@ export const register = (seed, passphrase) => {
   }
 
   if (passphrase && typeof passphrase !== 'string') {
-    throw new Error('If providing a passphrase, it must be a string.')
+    throw new Error('If providing a passphrase, it must be a string.');
   }
 
-  return async function (dispatch, getState) {
+  return async function(dispatch, getState) {
     dispatch({
       type: REGISTERING,
-      loginType: passphrase ? LOGIN_TYPE_PASSWORD : LOGIN_TYPE_SEED,
-    });  
+      loginType: passphrase ? LOGIN_TYPE_PASSWORD : LOGIN_TYPE_SEED
+    });
 
     if (passphrase) {
       const passphraseErrs = validatePassphrase(passphrase);
@@ -263,7 +261,7 @@ export const register = (seed, passphrase) => {
       if (passphraseErrs) {
         return {
           type: REGISTER_ERROR,
-          error: new Error(passphraseErrs.join(', ')),
+          error: new Error(passphraseErrs.join(', '))
         };
       }
     }
@@ -278,13 +276,18 @@ export const register = (seed, passphrase) => {
       }
 
       login = await _login(seed);
-      const firstName = firstNames[Math.floor(Math.random() * (firstNames.length - 1))];
-      const lastName = lastNames[Math.floor(Math.random() * (lastNames.length - 1))];      
+      const firstName =
+        firstNames[Math.floor(Math.random() * (firstNames.length - 1))];
+      const lastName =
+        lastNames[Math.floor(Math.random() * (lastNames.length - 1))];
       const profile = await login.db.profiles.upsert({
         peerID: login.peerId,
         name: `${firstName} ${lastName}`,
-        description: 'I like puppy dogs, rainbows and ice cream cones, but not necessarily in that order. 🐾 🌈 🍦',
-        avatarUrl: `http://i.pravatar.cc/150?img=${Math.floor(Math.random() * 50) + 1}`,
+        description:
+          'I like puppy dogs, rainbows and ice cream cones, but not necessarily in that order. 🐾 🌈 🍦',
+        avatarUrl: `http://i.pravatar.cc/150?img=${Math.floor(
+          Math.random() * 50
+        ) + 1}`
       });
 
       dispatch({
@@ -292,7 +295,7 @@ export const register = (seed, passphrase) => {
         peerId: login.peerId,
         profile: profile.toJSON(),
         seed,
-        encryptedSeed: encrypted && `${encrypted.result}|${encrypted.nonce}`,
+        encryptedSeed: encrypted && `${encrypted.result}|${encrypted.nonce}`
       });
 
       // TODO: unsubscribe on logout
@@ -304,21 +307,26 @@ export const register = (seed, passphrase) => {
       dispatch({
         type: REGISTER_ERROR,
         peerId: (login && login.peerId) || undefined,
-        error: e,
+        error: e
       });
     }
-  }
+  };
 };
 
 export const requestSessionLogin = () => {
   return function(dispatch, getState) {
     const userState = getState().user;
-    window.addEventListener('storage',
+    window.addEventListener(
+      'storage',
       e => {
         if (e.key === 'sessionLogin') {
           // another tab is logged in
-          if (e.newValue && !userState.loggedIn &&
-            !userState.loggingIn && !userState.registering) {
+          if (
+            e.newValue &&
+            !userState.loggedIn &&
+            !userState.loggingIn &&
+            !userState.registering
+          ) {
             dispatch(login(e.newValue));
           }
         }
@@ -327,31 +335,38 @@ export const requestSessionLogin = () => {
     );
     localStorage.setItem('getSessionLogin', 'blah');
     localStorage.removeItem('getSessionLogin');
-  }  
-}
+  };
+};
 
 let listeningForSessionLoginRequests = false;
 
 export const listenForSessionLoginEvents = () => (dispatch, getState) => {
   if (listeningForSessionLoginRequests) return;
 
-  window.addEventListener('storage', e => {
-    const userState = getState().user || {};
+  window.addEventListener(
+    'storage',
+    e => {
+      const userState = getState().user || {};
 
-    if (e.key === 'getSessionLogin') {
-      // another tab asked for the sessionStorage -> send it
-      const sessionLogin = sessionStorage.getItem('sessionLogin');
+      if (e.key === 'getSessionLogin') {
+        // another tab asked for the sessionStorage -> send it
+        const sessionLogin = sessionStorage.getItem('sessionLogin');
 
-      if (sessionLogin) {
-        localStorage.setItem('sessionLogin', sessionStorage.getItem('sessionLogin'));
+        if (sessionLogin) {
+          localStorage.setItem(
+            'sessionLogin',
+            sessionStorage.getItem('sessionLogin')
+          );
+        }
+
+        // the other tab should now have it, so we're done with it.
+        localStorage.removeItem('sessionLogin'); // <- could do short timeout as well.
+      } else if (e.key === 'sessionLogout' && userState.peerId === e.newValue) {
+        dispatch(logout());
       }
-
-      // the other tab should now have it, so we're done with it.
-      localStorage.removeItem('sessionLogin'); // <- could do short timeout as well.      
-    } else if (e.key === 'sessionLogout' && userState.peerId === e.newValue) {
-      dispatch(logout());
-    }
-  }, false);
+    },
+    false
+  );
 
   listeningForSessionLoginRequests = true;
-}
+};

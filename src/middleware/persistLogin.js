@@ -1,8 +1,4 @@
-import {
-  LOGGED_IN,
-  PROFILE_SET,
-  LOGGED_OUT,
-} from 'actions/user';
+import { LOGGED_IN, PROFILE_SET, LOGGED_OUT } from 'actions/user';
 
 const storeLsLogin = store => next => action => {
   const result = next(action);
@@ -12,7 +8,7 @@ const storeLsLogin = store => next => action => {
     const lsLogin = {
       lastLoginPeerId: nextState.user.lastLoginPeerId,
       lastLoginType: nextState.user.lastLoginType,
-      encryptedLogins: nextState.user.encryptedLogins,
+      encryptedLogins: nextState.user.encryptedLogins
     };
     localStorage.setItem('login', JSON.stringify(lsLogin));
   }
@@ -26,6 +22,6 @@ const storeLsLogin = store => next => action => {
   }
 
   return result;
-}
+};
 
 export default storeLsLogin;

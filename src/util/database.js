@@ -11,19 +11,17 @@ RxDB.plugin(require('pouchdb-adapter-http'));
 let db = {
   promise: null,
   name: null,
-  instance: null,
-}
+  instance: null
+};
 
 const syncUrl = `http://${window.location.hostname}:5984/`;
 
 async function _connect(name, password) {
-  const database = await RxDB.create(
-    {
-      name,
-      adapter: 'idb',
-      password,
-    }
-  );
+  const database = await RxDB.create({
+    name,
+    adapter: 'idb',
+    password
+  });
 
   // TODO: first part for debugging only!
   window.db = db.instance = database;
@@ -42,21 +40,19 @@ async function _connect(name, password) {
 
 export function connect(name, password) {
   if (name.indexOf(password) > -1) {
-    throw new Error('The database name should not be equal to or contain ' +
-      'the password.');
+    throw new Error(
+      'The database name should not be equal to or contain ' + 'the password.'
+    );
   }
 
   const dbName = `ob${name}`;
-  
+
   if (db.promise) {
     if (db.name !== dbName && db.instance) {
-      return db.instance.destroy()
-        .then(
-          () => {
-            db.promise = _connect(dbName, password);
-            return db.promise;
-          }
-        );
+      return db.instance.destroy().then(() => {
+        db.promise = _connect(dbName, password);
+        return db.promise;
+      });
     } else {
       return db.promise;
     }
@@ -69,12 +65,12 @@ export function connect(name, password) {
 export function destroy() {
   if (db.instance) {
     const destroyInstance = db.instance;
-    
+
     db = {
       promise: null,
       name: null,
-      instance: null,
-    }
+      instance: null
+    };
 
     return destroyInstance.destroy();
 
@@ -91,6 +87,6 @@ export function getCurDb() {
 
   return {
     name: db.name,
-    instance: db.instance,
-  }
+    instance: db.instance
+  };
 }

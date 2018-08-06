@@ -5,14 +5,14 @@ import { routerReducer } from 'react-router-redux';
 import user from './user';
 
 const config = {
-  id: 1,  
+  id: 1
 };
 
 const rootReducer = combineReducers({
-  config: () => config,  
+  config: () => config,
   router: routerReducer,
   modals,
-  user,
+  user
 });
 
 export default rootReducer;

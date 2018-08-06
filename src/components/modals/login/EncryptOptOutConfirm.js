@@ -7,8 +7,8 @@ const EncryptOptOutConfirm = props => {
     <OutsideClick onOutsideClick={props.onOutsideClick}>
       <div className="Login-confirmEncryptOptOut contentBox confirmBox confirmBoxTop">
         <p>
-          You have not provided an encryption password. Are you sure you
-          want to register without encrypting your seed?
+          You have not provided an encryption password. Are you sure you want to
+          register without encrypting your seed?
         </p>
         <div className="flexVCent gutterH">
           <button onClick={props.onClickYes}>Yes</button>
@@ -22,7 +22,7 @@ const EncryptOptOutConfirm = props => {
 EncryptOptOutConfirm.propTypes = {
   onClickYes: PropTypes.func.isRequired,
   onClickNo: PropTypes.func.isRequired,
-  onOutsideClick: PropTypes.func.isRequired,
-}
+  onOutsideClick: PropTypes.func.isRequired
+};
 
 export default EncryptOptOutConfirm;

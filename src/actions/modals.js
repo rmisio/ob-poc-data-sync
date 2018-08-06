@@ -23,20 +23,22 @@ export const openModal = (props = {}) => {
   // todo: check that type matches a declared constant
 
   return (dispatch, getState) => {
-    const curModal = getState().modals.openModals
-      .find(modal => singletonModals.includes(props.modalType) &&
-        modal.modalType === props.modalType);
+    const curModal = getState().modals.openModals.find(
+      modal =>
+        singletonModals.includes(props.modalType) &&
+        modal.modalType === props.modalType
+    );
 
     const modalId = curModal ? curModal.modalId : uuidv4();
 
     dispatch({
       type: OPEN_MODAL,
       ...props,
-      modalId,
+      modalId
     });
 
     return modalId;
-  }
+  };
 };
 
 /*
@@ -48,26 +50,33 @@ export const openModal = (props = {}) => {
  * @param {string} [options.modalId] - The modal instance with this ID will be
  *   closed.
  */
-export const closeModal = (options={}) => {
-  if (options.modalType !== undefined &&
-    typeof options.modalType !== 'string') {
-    throw new Error('If providing the type, it must be provided in the options hash' +
-      'as a string.');
+export const closeModal = (options = {}) => {
+  if (
+    options.modalType !== undefined &&
+    typeof options.modalType !== 'string'
+  ) {
+    throw new Error(
+      'If providing the type, it must be provided in the options hash' +
+        'as a string.'
+    );
   }
 
-  if (options.modalId !== undefined &&
-    typeof options.modalId !== 'string') {
-    throw new Error('If providing the ID, it must be provided in the options hash' +
-      'as a string.');
+  if (options.modalId !== undefined && typeof options.modalId !== 'string') {
+    throw new Error(
+      'If providing the ID, it must be provided in the options hash' +
+        'as a string.'
+    );
   }
 
   if (!options.modalId && !options.modalType) {
-    throw new Error('Either a modalId or modalType must be provided in the options hash.');
+    throw new Error(
+      'Either a modalId or modalType must be provided in the options hash.'
+    );
   }
 
   return {
     type: CLOSE_MODAL,
     modalType: options.modalType,
-    modalId: options.modalId,
-  }
+    modalId: options.modalId
+  };
 };

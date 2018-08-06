@@ -12,7 +12,7 @@ export function identityFromKey(privKey) {
           if (!err) {
             resolve({
               base58PrivKey: Base64.fromByteArray(base58PrivKey.bytes),
-              peerId: peerID._idB58String,
+              peerId: peerID._idB58String
             });
             return;
           }
@@ -30,7 +30,7 @@ export function identityFromKey(privKey) {
 export function identityKeyFromSeed(seed, bits = 4096) {
   return new Promise((resolve, reject) => {
     hash(seed, {
-      hmacSeed: 'ob-identity',
+      hmacSeed: 'ob-identity'
     }).then(
       sig => {
         keys.generateKeyPairFromSeed('ed25519', sig, bits, (err, privKey) => {
@@ -41,7 +41,7 @@ export function identityKeyFromSeed(seed, bits = 4096) {
           }
         });
       },
-      e => reject(e),
+      e => reject(e)
     );
   });
 }
@@ -53,7 +53,7 @@ export const hash = async (text, options = {}) => {
   const opts = {
     hash: 'SHA256',
     hmacSeed: 'ob-hash',
-    ...options,
+    ...options
   };
 
   return new Promise((resolve, reject) => {
@@ -73,7 +73,7 @@ export const hash = async (text, options = {}) => {
       reject(err);
     });
   });
-}
+};
 
 /*
  * Returns a base64 encoded hash of the given text.
@@ -82,12 +82,12 @@ export const hashText = async (text, options = {}) => {
   const opts = {
     hash: 'SHA256',
     hmacSeed: 'ob-hash-text',
-    ...options,
+    ...options
   };
 
   const uint8Hash = await hash(text, {
     hash: opts.hash,
-    hmacSeed: opts.hmacSeed,
+    hmacSeed: opts.hmacSeed
   });
 
   return naclUtil.encodeBase64(uint8Hash);
@@ -100,37 +100,36 @@ export const hashText = async (text, options = {}) => {
  */
 export const encrypt = async (text, passphrase, options = {}) => {
   if (typeof text !== 'string' || !text) {
-    throw new Error('Please provide some text to encrypt as a string.')
-  };
+    throw new Error('Please provide some text to encrypt as a string.');
+  }
 
   if (typeof passphrase !== 'string' || !passphrase) {
-    throw new Error('Please provide a passphrase as a string.')
-  };
+    throw new Error('Please provide a passphrase as a string.');
+  }
 
   // The default hash and hmacSeed should match the defaults in decrypt().
   const opts = {
     hash: 'SHA256',
     hmacSeed: 'ob-encrypt',
-    ...options,
+    ...options
   };
 
   let nonce = await hash(text, {
     hash: opts.hash,
-    hmacSeed: opts.hmacSeed,
+    hmacSeed: opts.hmacSeed
   });
   nonce = nonce.slice(0, 24);
 
   const key = await hash(passphrase, {
     hash: opts.hash,
-    hmacSeed: opts.hmacSeed,
+    hmacSeed: opts.hmacSeed
   });
 
-  const encrypted =
-    nacl.secretbox(naclUtil.decodeUTF8(text), nonce, key);
+  const encrypted = nacl.secretbox(naclUtil.decodeUTF8(text), nonce, key);
 
   return {
     result: naclUtil.encodeBase64(encrypted),
-    nonce: naclUtil.encodeBase64(nonce),
+    nonce: naclUtil.encodeBase64(nonce)
   };
 };
 
@@ -139,37 +138,41 @@ export const encrypt = async (text, passphrase, options = {}) => {
  * The same hash and/or hmacSeed used when encrypting, must be used here. If
  * the wrong passphrase is provided, null will be returned.
  */
-export const decrypt = async (encryptedText, nonce, passphrase, options = {}) => {
+export const decrypt = async (
+  encryptedText,
+  nonce,
+  passphrase,
+  options = {}
+) => {
   if (typeof encryptedText !== 'string' || !encryptedText) {
-    throw new Error('Please provide some encryptedText to decrypt.')
-  };
+    throw new Error('Please provide some encryptedText to decrypt.');
+  }
 
   if (typeof nonce !== 'string' || !nonce) {
-    throw new Error('Please provide a nonce as a string.')
-  };
+    throw new Error('Please provide a nonce as a string.');
+  }
 
   if (typeof passphrase !== 'string' || !passphrase) {
-    throw new Error('Please provide a passphrase as a string.')
-  };
+    throw new Error('Please provide a passphrase as a string.');
+  }
 
   // The default hash and hmacSeed should match the defaults in encrypt().
   const opts = {
     hash: 'SHA256',
     hmacSeed: 'ob-encrypt',
-    ...options,
+    ...options
   };
 
   const key = await hash(passphrase, {
     hash: opts.hash,
-    hmacSeed: opts.hmacSeed,
+    hmacSeed: opts.hmacSeed
   });
 
   const decrypted = nacl.secretbox.open(
     naclUtil.decodeBase64(encryptedText),
     naclUtil.decodeBase64(nonce),
-    key,
+    key
   );
 
-  return decrypted === null ?
-    null : naclUtil.encodeUTF8(decrypted);
+  return decrypted === null ? null : naclUtil.encodeUTF8(decrypted);
 };

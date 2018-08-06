@@ -12,7 +12,7 @@ const SimpleMessage = props => {
 
 SimpleMessage.propTypes = {
   title: PropTypes.string.isRequired,
-  body: PropTypes.string.isRequired,
-}
+  body: PropTypes.string.isRequired
+};
 
 export default SimpleMessage;

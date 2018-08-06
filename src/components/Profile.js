@@ -13,35 +13,35 @@ class Profile extends Component {
     this.state = {
       phase: 'view',
       form: {
-        ...props.user.profile,
-      },
-    }
+        ...props.user.profile
+      }
+    };
   }
 
   componentDidUpdate(prevProps) {
-    if (this.props.user.profile &&
-      !prevProps.user.profile) {
+    if (this.props.user.profile && !prevProps.user.profile) {
       this.setState({
         form: {
-          ...this.props.user.profile,
+          ...this.props.user.profile
         }
       });
     }
 
-    if (this.props.user.saveProfileError &&
-      !prevProps.user.saveProfileError) {
+    if (this.props.user.saveProfileError && !prevProps.user.saveProfileError) {
       this.props.actions.modals.openModal({
         modalType: 'SimpleMessage',
         title: 'There was an error saving your profile',
-        body: this.props.user.saveProfileError,
+        body: this.props.user.saveProfileError
       });
     }
 
-    if (this.props.user.savingProfileSaved &&
-      !prevProps.user.savingProfileSaved) {
+    if (
+      this.props.user.savingProfileSaved &&
+      !prevProps.user.savingProfileSaved
+    ) {
       this.setState({ phase: 'view' });
     }
-  }  
+  }
 
   handleInputChange = event => {
     const target = event.target;
@@ -51,32 +51,36 @@ class Profile extends Component {
     this.setState({
       form: {
         ...this.state.form,
-        [name]: value,
-      },
+        [name]: value
+      }
     });
-  }
+  };
 
   handleEditClick = e => {
-    this.setState({ phase: 'edit'});
+    this.setState({ phase: 'edit' });
     e.preventDefault();
-  }
+  };
 
   handleFormCancelClick = e => {
-    this.setState({ phase: 'view'});
+    this.setState({ phase: 'view' });
     e.preventDefault();
-  }
+  };
 
   handleFormSubmitClick = e => {
     this.props.actions.user.saveProfile(this.state.form);
     e.preventDefault();
-  }
+  };
 
   render() {
     const profile = this.props.user.profile;
     let content = (
-      <div style={{textAlign: 'center'}}>
+      <div style={{ textAlign: 'center' }}>
         <h2>Profile not set</h2>
-        <p>You either entered the wrong seed when you logged in or your local browser does not have your data and the sync with the remote hasn't completed.</p>
+        <p>
+          You either entered the wrong seed when you logged in or your local
+          browser does not have your data and the sync with the remote hasn't
+          completed.
+        </p>
       </div>
     );
 
@@ -105,7 +109,7 @@ class Profile extends Component {
             <hr />
             <div>
               <button onClick={this.handleEditClick}>Edit</button>
-            </div>            
+            </div>
           </div>
         );
       } else {
@@ -113,10 +117,9 @@ class Profile extends Component {
           <form>
             <div className="row">
               <label htmlFor="name">Name:</label>
-              {
-                this.state.formErrors && this.state.formErrors.name ?
-                  <ErrorList errors={this.state.formErrors.name} /> : null
-              }
+              {this.state.formErrors && this.state.formErrors.name ? (
+                <ErrorList errors={this.state.formErrors.name} />
+              ) : null}
               <input
                 type="text"
                 id="name"
@@ -124,14 +127,13 @@ class Profile extends Component {
                 onChange={this.handleInputChange}
                 placeholder="What yo name?"
                 name="name"
-                ></input>
+              />
             </div>
             <div className="row">
               <label htmlFor="description">Description:</label>
-              {
-                this.state.formErrors && this.state.formErrors.description ?
-                  <ErrorList errors={this.state.formErrors.description} /> : null
-              }
+              {this.state.formErrors && this.state.formErrors.description ? (
+                <ErrorList errors={this.state.formErrors.description} />
+              ) : null}
               <textarea
                 type="text"
                 id="description"
@@ -139,15 +141,14 @@ class Profile extends Component {
                 onChange={this.handleInputChange}
                 placeholder="Who be you?"
                 name="description"
-                style={{minHeight: '100px'}}
-                ></textarea>
+                style={{ minHeight: '100px' }}
+              />
             </div>
             <div className="row">
               <label htmlFor="avatarUrl">Avatar Url:</label>
-              {
-                this.state.formErrors && this.state.formErrors.avatarUrl ?
-                  <ErrorList errors={this.state.formErrors.avatarUrl} /> : null
-              }
+              {this.state.formErrors && this.state.formErrors.avatarUrl ? (
+                <ErrorList errors={this.state.formErrors.avatarUrl} />
+              ) : null}
               <input
                 type="text"
                 id="avatarUrl"
@@ -155,7 +156,7 @@ class Profile extends Component {
                 onChange={this.handleInputChange}
                 placeholder="Where yo facial at?"
                 name="avatarUrl"
-                ></input>
+              />
             </div>
             <div className="flexRow gutterH">
               <button onClick={this.handleFormCancelClick}>Cancel</button>
@@ -163,20 +164,16 @@ class Profile extends Component {
             </div>
           </form>
         );
-      }      
+      }
     }
 
-    return (
-      <div className="Profile">
-        {content}
-      </div>
-    );
+    return <div className="Profile">{content}</div>;
   }
 }
 
 function mapStateToProps(state, props) {
   return {
-    user: state.user,
+    user: state.user
   };
 }
 
@@ -184,10 +181,12 @@ function mapDispatchToProps(dispatch) {
   return {
     actions: {
       user: bindActionCreators(UserActions, dispatch),
-      modals: bindActionCreators(ModalActions, dispatch),
+      modals: bindActionCreators(ModalActions, dispatch)
     }
   };
 }
 
-
-export default connect(mapStateToProps, mapDispatchToProps)(Profile);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(Profile);

@@ -10,16 +10,16 @@ const schema = {
     },
     name: {
       type: 'string',
-      encrypted: true,
+      encrypted: true
     },
     description: {
-      type: 'string',
+      type: 'string'
     },
     avatarUrl: {
-      type: 'string',
-    },
+      type: 'string'
+    }
   },
-  required: ['peerID', 'name', 'description', 'avatarUrl'],
-}
+  required: ['peerID', 'name', 'description', 'avatarUrl']
+};
 
 export default schema;

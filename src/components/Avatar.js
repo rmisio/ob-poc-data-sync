@@ -7,9 +7,9 @@ const Avatar = props => {
   return (
     <TagName
       className="Avatar {props.className}"
-      style={{backgroundImage: `url(${props.url}), url(${defaultAvatar})` }}>
-    </TagName>
+      style={{ backgroundImage: `url(${props.url}), url(${defaultAvatar})` }}
+    />
   );
-}
+};
 
 export default Avatar;

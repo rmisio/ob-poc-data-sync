@@ -19,24 +19,23 @@ class ModalRoot extends Component {
     // todo: launch loading modal during deffered loading or make a fancy pants in
     // modal loading animation?
     // todo: show error state if deferred loading error, with retry (?)
-    import(`./${props.modalType}`)
-      .then(
-        ModalModule => {
-          if (this.state.ModalComponent) return;
-          this.setState({ ModalComponent: ModalModule.default });
-        },
-        error => {
-          console.error(error);
-        },
-      );
+    import(`./${props.modalType}`).then(
+      ModalModule => {
+        if (this.state.ModalComponent) return;
+        this.setState({ ModalComponent: ModalModule.default });
+      },
+      error => {
+        console.error(error);
+      }
+    );
   }
 
   handleClick = event => {
     this.props.actions.closeModal({
       modalType: this.props.modalType,
-      modalId: this.props.modalId,
+      modalId: this.props.modalId
     });
-  }
+  };
 
   render() {
     if (!this.state.ModalComponent) return null;
@@ -47,7 +46,9 @@ class ModalRoot extends Component {
     return (
       <section className="ModalRoot">
         <div className="ModalRoot-innerWrap">
-          <a className="ModalRoot-close" onClick={this.handleClick}>X</a>
+          <a className="ModalRoot-close" onClick={this.handleClick}>
+            X
+          </a>
           <this.state.ModalComponent {...modalProps} />
         </div>
       </section>
@@ -61,8 +62,11 @@ function mapStateToProps(state, props) {
 
 function mapDispatchToProps(dispatch) {
   return {
-    actions: bindActionCreators(ModalActions, dispatch),
+    actions: bindActionCreators(ModalActions, dispatch)
   };
 }
 
-export default connect(mapStateToProps, mapDispatchToProps)(ModalRoot);
+export default connect(
+  mapStateToProps,
+  mapDispatchToProps
+)(ModalRoot);

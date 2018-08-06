@@ -17,12 +17,13 @@ export default class OutsideClick extends Component {
 
   handleDocClick = event => {
     if (
-      this.wrapperRef && this.wrapperRef.current &&
+      this.wrapperRef &&
+      this.wrapperRef.current &&
       !this.wrapperRef.current.contains(event.target)
     ) {
       this.props.onOutsideClick(event);
     }
-  }
+  };
 
   render() {
     return <div ref={this.wrapperRef}>{this.props.children}</div>;
@@ -31,5 +32,5 @@ export default class OutsideClick extends Component {
 
 OutsideClick.propTypes = {
   onOutsideClick: PropTypes.func.isRequired,
-  children: PropTypes.element.isRequired,
-}
+  children: PropTypes.element.isRequired
+};

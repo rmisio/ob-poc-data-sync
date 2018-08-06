@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import createHistory from 'history/createBrowserHistory'
+import createHistory from 'history/createBrowserHistory';
 // import registerServiceWorker from './registerServiceWorker';
 import { Provider } from 'react-redux';
 import Store from 'store';
